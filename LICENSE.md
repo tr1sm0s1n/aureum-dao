@@ -1,6 +1,6 @@
 # MIT License
 
-Copyright (c) 2023 Arundhathi K M, Mobin M, Sachin V S, Vinesh T K, Vishva Prasad P
+Copyright (c) 2024 Arundhathi K M, Mobin M, Sachin V S, Vinesh T K, Vishva Prasad P
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
