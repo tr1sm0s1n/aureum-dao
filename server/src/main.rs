@@ -1,5 +1,5 @@
 use axum::{routing::get, Router};
-use tower_http::trace::TraceLayer;
+use tower_http::{services::ServeFile, trace::TraceLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 #[tokio::main]
@@ -8,7 +8,7 @@ async fn main() {
     tracing_subscriber::registry()
         .with(
             tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| "concordium_dao_server=debug,RUST_LOG=debug".into()),
+                .unwrap_or_else(|_| "concordium_dao_server=debug,tower_http=debug".into()),
         )
         .with(tracing_subscriber::fmt::layer())
         .init();
@@ -26,6 +26,7 @@ fn app() -> Router {
     // build our application with multiple routes
     Router::new()
         .route("/hello", get(hello))
+        .route_service("/statement", ServeFile::new("config/statement.json"))
         .layer(TraceLayer::new_for_http())
 }
 
