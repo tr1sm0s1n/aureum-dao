@@ -1,9 +1,50 @@
+mod handlers;
+mod types;
+use crate::handlers::*;
+use crate::types::*;
+
+use std::{
+    collections::HashMap,
+    fs,
+    sync::{Arc, Mutex},
+};
+
 use axum::{routing::get, Router};
-use tower_http::{services::ServeFile, trace::TraceLayer};
+use concordium_rust_sdk::{
+    id::{
+        constants::{ArCurve, AttributeKind},
+        id_proof_types::Statement,
+    },
+    v2::BlockIdentifier,
+};
+use tower_http::trace::TraceLayer;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 #[tokio::main]
-async fn main() {
+async fn main() -> anyhow::Result<()> {
+    let file = fs::read_to_string("./config/statement.json").expect("Unable to read statement");
+    let statement: Statement<ArCurve, AttributeKind> =
+        serde_json::from_str(&file).expect("JSON does not have correct format");
+
+    let endpoint =
+        concordium_rust_sdk::v2::Endpoint::from_static("https://grpc.testnet.concordium.com:20000");
+    let mut client = concordium_rust_sdk::v2::Client::new(endpoint)
+        .await
+        .unwrap();
+
+    let global_context = client
+        .get_cryptographic_parameters(BlockIdentifier::LastFinal)
+        .await?
+        .response;
+
+    let state = Server {
+        client,
+        statement,
+        challenges: Arc::new(Mutex::new(HashMap::new())),
+        global_context: Arc::new(global_context),
+        tokens: Arc::new(Mutex::new(HashMap::new())),
+    };
+
     // logging middleware
     tracing_subscriber::registry()
         .with(
@@ -19,15 +60,17 @@ async fn main() {
         .unwrap();
 
     tracing::debug!("Listening on {}", listener.local_addr().unwrap());
-    axum::serve(listener, app()).await.unwrap();
+    axum::serve(listener, app(state)).await?;
+    Ok(())
 }
 
-fn app() -> Router {
+fn app(state: Server) -> Router {
     // build our application with multiple routes
     Router::new()
         .route("/hello", get(hello))
-        .route_service("/statement", ServeFile::new("config/statement.json"))
+        .route("/statement", get(get_statement))
         .layer(TraceLayer::new_for_http())
+        .with_state(state)
 }
 
 async fn hello() -> &'static str {
