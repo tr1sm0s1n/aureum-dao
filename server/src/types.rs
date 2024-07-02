@@ -1,3 +1,4 @@
+use core::fmt;
 use std::{
     collections::HashMap,
     sync::{Arc, Mutex},
@@ -5,6 +6,8 @@ use std::{
 };
 
 use concordium_rust_sdk::{
+    base as concordium_base,
+    common::{SerdeBase16Serialize, Serial, Serialize},
     id::{
         constants::{ArCurve, AttributeKind},
         id_proof_types::Statement,
@@ -12,6 +15,11 @@ use concordium_rust_sdk::{
     },
     v2::Client,
 };
+
+#[derive(
+    Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, SerdeBase16Serialize, Serialize,
+)]
+pub struct Challenge(pub [u8; 32]);
 
 #[derive(Clone)]
 pub struct Server {
@@ -28,7 +36,25 @@ pub struct ChallengeStatus {
     pub created_at: SystemTime,
 }
 
+#[derive(serde::Deserialize, serde::Serialize, Debug)]
+pub struct ChallengeResponse {
+    pub challenge: Challenge,
+}
+
 #[derive(Clone)]
 pub struct TokenStatus {
     pub created_at: SystemTime,
+}
+
+#[derive(Debug,)]
+pub enum InjectStatementError {
+    LockingError,
+}
+
+impl fmt::Display for InjectStatementError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            InjectStatementError::LockingError => write!(f, "Error acquiring internal lock."),
+        }
+    }
 }
