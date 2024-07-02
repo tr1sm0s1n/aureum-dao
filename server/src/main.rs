@@ -55,11 +55,9 @@ async fn main() -> anyhow::Result<()> {
         .init();
 
     // run it
-    let listener = tokio::net::TcpListener::bind("127.0.0.1:4800")
-        .await
-        .unwrap();
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:4800").await?;
 
-    tracing::debug!("Listening on {}", listener.local_addr().unwrap());
+    tracing::debug!("Listening on {}", listener.local_addr()?);
     axum::serve(listener, app(state)).await?;
     Ok(())
 }
@@ -69,6 +67,7 @@ fn app(state: Server) -> Router {
     Router::new()
         .route("/hello", get(hello))
         .route("/statement", get(get_statement))
+        .route("/challenge", get(get_challenge))
         .layer(TraceLayer::new_for_http())
         .with_state(state)
 }
