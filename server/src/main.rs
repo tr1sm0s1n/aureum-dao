@@ -17,6 +17,7 @@ use concordium_rust_sdk::{
     },
     v2::BlockIdentifier,
 };
+use tonic::transport::ClientTlsConfig;
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -27,10 +28,9 @@ async fn main() -> anyhow::Result<()> {
         serde_json::from_str(&file).expect("JSON does not have correct format");
 
     let endpoint =
-        concordium_rust_sdk::v2::Endpoint::from_static("https://grpc.testnet.concordium.com:20000");
-    let mut client = concordium_rust_sdk::v2::Client::new(endpoint)
-        .await
-        .unwrap();
+        concordium_rust_sdk::v2::Endpoint::from_static("https://grpc.testnet.concordium.com:20000")
+            .tls_config(ClientTlsConfig::new())?;
+    let mut client = concordium_rust_sdk::v2::Client::new(endpoint).await?;
 
     let global_context = client
         .get_cryptographic_parameters(BlockIdentifier::LastFinal)
