@@ -9,6 +9,7 @@ use std::{
     sync::{Arc, Mutex},
 };
 
+use axum::routing::post;
 use axum::{routing::get, Router};
 use concordium_rust_sdk::{
     id::{
@@ -68,6 +69,7 @@ fn app(state: Server) -> Router {
         .route("/hello", get(hello))
         .route("/statement", get(get_statement))
         .route("/challenge", get(get_challenge))
+        .route("/prove", post(provide_proof))
         .layer(TraceLayer::new_for_http())
         .with_state(state)
 }
