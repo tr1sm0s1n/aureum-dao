@@ -7,12 +7,13 @@ use std::{
 
 use concordium_rust_sdk::{
     base as concordium_base,
-    common::{SerdeBase16Serialize, Serial, Serialize},
+    common::{SerdeBase16Serialize, Serial, Serialize, Versioned},
     id::{
         constants::{ArCurve, AttributeKind},
-        id_proof_types::Statement,
+        id_proof_types::{Proof, Statement},
         types::{AccountAddress, GlobalContext},
     },
+    types::CredentialRegistrationID,
     v2::Client,
 };
 
@@ -41,20 +42,46 @@ pub struct ChallengeResponse {
     pub challenge: Challenge,
 }
 
+#[derive(serde::Deserialize, serde::Serialize, Debug, Clone)]
+pub struct ChallengedProof {
+    pub challenge: Challenge,
+    pub proof: ProofWithContext,
+}
+
+#[derive(serde::Deserialize, serde::Serialize, Debug, Clone)]
+pub struct ProofWithContext {
+    pub credential: CredentialRegistrationID,
+    pub proof: Versioned<Proof<ArCurve, AttributeKind>>,
+}
+
 #[derive(Clone)]
 pub struct TokenStatus {
     pub created_at: SystemTime,
 }
 
-#[derive(Debug,)]
+#[derive(Debug)]
 pub enum InjectStatementError {
+    Credential,
+    InvalidProofs,
     LockingError,
+    NotAllowed,
+    UnknownSession,
+    Other,
 }
 
 impl fmt::Display for InjectStatementError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
+            InjectStatementError::Credential => write!(f, "Given token was expired."),
+            InjectStatementError::InvalidProofs => write!(f, "Invalid proof."),
             InjectStatementError::LockingError => write!(f, "Error acquiring internal lock."),
+            InjectStatementError::NotAllowed => write!(f, "Not allowed."),
+            InjectStatementError::UnknownSession => {
+                write!(f, "Proof provided for an unknown session.")
+            }
+            InjectStatementError::Other => write!(f, "Other error."),
         }
     }
 }
+
+impl std::error::Error for InjectStatementError {}
