@@ -19,7 +19,10 @@ use concordium_rust_sdk::{
     v2::BlockIdentifier,
 };
 use tonic::transport::ClientTlsConfig;
-use tower_http::trace::TraceLayer;
+use tower_http::{
+    cors::{Any, CorsLayer},
+    trace::TraceLayer,
+};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 #[tokio::main]
@@ -70,6 +73,12 @@ fn app(state: Server) -> Router {
         .route("/statement", get(get_statement))
         .route("/challenge", get(get_challenge))
         .route("/prove", post(provide_proof))
+        .layer(
+            CorsLayer::new()
+                .allow_origin(Any)
+                .allow_methods(Any)
+                .allow_headers(Any),
+        )
         .layer(TraceLayer::new_for_http())
         .with_state(state)
 }
