@@ -30,12 +30,12 @@ pub async fn get_statement(
 }
 
 pub async fn get_challenge(
-    Query(address): Query<AccountAddress>,
+    Query(params): Query<Params>,
     State(st): State<Server>,
 ) -> Result<Json<ChallengeResponse>, (StatusCode, String)> {
     let state = st.clone();
     tracing::debug!("Parsed statement. Generating challenge");
-    match get_challenge_worker(state, address).await {
+    match get_challenge_worker(state, params.address).await {
         Ok(r) => Ok(Json(r)),
         Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
     }

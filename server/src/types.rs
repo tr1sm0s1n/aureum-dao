@@ -31,6 +31,11 @@ pub struct Server {
     pub tokens: Arc<Mutex<HashMap<String, TokenStatus>>>,
 }
 
+#[derive(serde::Deserialize)]
+pub struct Params {
+    pub address: AccountAddress,
+}
+
 #[derive(Clone)]
 pub struct ChallengeStatus {
     pub address: AccountAddress,
