@@ -105,6 +105,10 @@ fn dao_vote(
     let state = host.state_mut();
     let sender = ctx.invoker();
 
+    if state.members.iter().any(|addr| *addr != sender) {
+        return Err(Error::Unauthorized.into());
+    }
+
     if state
         .votes
         .iter()
