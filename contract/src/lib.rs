@@ -136,3 +136,15 @@ fn dao_vote(
 
     Ok(())
 }
+
+#[receive(contract = "DAO", name = "all_proposals", return_value = "DAOState")]
+fn dao_all_proposals(_ctx: &ReceiveContext, host: &Host<DAOState>) -> ReceiveResult<Vec<Proposal>> {
+    let proposals = host.state().proposals.clone();
+    Ok(proposals)
+}
+
+/// Insert some CCD into DAO, allowed by anyone.
+#[receive(contract = "DAO", name = "insert", payable)]
+fn dao_insert(_ctx: &ReceiveContext, _host: &Host<DAOState>, _amount: Amount) -> ReceiveResult<()> {
+    Ok(())
+}
