@@ -1,0 +1,15 @@
+[
+    {
+        "type": "AttributeInSet",
+        "attributeTag": "countryOfResidence",
+        "set": [
+            "IN"
+        ]
+    },
+    {
+        "type": "AttributeInRange",
+        "attributeTag": "dob",
+        "lower": "19060101",
+        "upper": "20051212"
+    }
+]
