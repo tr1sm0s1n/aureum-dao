@@ -49,6 +49,9 @@ pub enum Error {
     ProposalNotFound,
     AlreadyVoted,
     Unauthorized,
+    InsufficientBalance,
+    ProposalDenied,
+    NotApproved,
 }
 
 #[derive(Serialize, SchemaType)]
@@ -190,5 +193,31 @@ fn dao_add_member(ctx: &ReceiveContext, host: &mut Host<DAOState>) -> ReceiveRes
     }
     let member: Member = ctx.parameter_cursor().get()?;
     state.members.push(member.address);
+    Ok(())
+}
+
+#[receive(contract = "DAO", name = "withdraw")]
+fn dao_withdraw(ctx: &ReceiveContext, host: &Host<DAOState>) -> ReceiveResult<()> {
+    let proposal_id: u64 = ctx.parameter_cursor().get()?;
+    let state = host.state();
+    let caller = ctx.invoker();
+
+    for (id, p) in &state.proposals {
+        if *id == proposal_id && p.proposer == caller {
+            if p.status == Status::Approved {
+                if p.amount < host.self_balance() {
+                    return Ok(host.invoke_transfer(&caller, p.amount)?);
+                } else {
+                    return Err(Error::InsufficientBalance.into());
+                }
+            } else if p.status == Status::Denied {
+                return Err(Error::ProposalDenied.into());
+            } else {
+                return Err(Error::NotApproved.into());
+            }
+        } else {
+            return Err(Error::Unauthorized.into());
+        }
+    }
     Ok(())
 }
