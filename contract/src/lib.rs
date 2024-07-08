@@ -3,12 +3,29 @@
 use concordium_std::*;
 use core::fmt::Debug;
 
+#[derive(Serialize, SchemaType)]
+struct DAOState {
+    proposals: Vec<(u64, Proposal)>,
+    votes: Vec<(u64, AccountAddress)>, // (proposal_id, voter_address)
+    members: Vec<AccountAddress>,
+    admin: AccountAddress,
+}
+
 #[derive(Clone, Serialize, SchemaType)]
 struct Proposal {
+    proposer: AccountAddress,
     description: String,
     amount: Amount,
     votes_for: u64,
     votes_against: u64,
+    status: Status,
+}
+
+#[derive(Clone, Serialize, SchemaType, PartialEq)]
+pub enum Status {
+    Active,
+    Approved,
+    Denied,
 }
 
 #[derive(Clone, Serialize, SchemaType, Debug, PartialEq, Eq)]
@@ -46,24 +63,19 @@ enum DAOEvent {
 #[init(contract = "DAO")]
 fn dao_init(ctx: &InitContext, _state_builder: &mut StateBuilder) -> InitResult<DAOState> {
     let mut members: Vec<AccountAddress> = vec![];
-    members.push(ctx.init_origin());
+    let admin = ctx.init_origin();
+    members.push(admin.clone());
     Ok(DAOState {
         proposals: vec![],
         votes: vec![],
         members,
+        admin,
     })
-}
-
-#[derive(Serialize, SchemaType)]
-struct DAOState {
-    proposals: Vec<Proposal>,
-    votes: Vec<(u64, AccountAddress)>, // (proposal_id, voter_address)
-    members: Vec<AccountAddress>,
 }
 
 #[receive(
     contract = "DAO",
-    name = "receive",
+    name = "create_proposal",
     parameter = "ProposalInput",
     error = "Error",
     enable_logger,
@@ -79,12 +91,17 @@ fn dao_create_proposal(
     let amount = input.clone().amount;
     let state = host.state_mut();
     let proposal_id = state.proposals.len() as u64;
-    state.proposals.push(Proposal {
-        description: input.clone().description,
-        amount: input.clone().amount,
-        votes_for: 0,
-        votes_against: 0,
-    });
+    state.proposals.push((
+        proposal_id,
+        Proposal {
+            proposer: ctx.invoker(),
+            description: input.clone().description,
+            amount: input.clone().amount,
+            votes_for: 0,
+            votes_against: 0,
+            status: Status::Active,
+        },
+    ));
 
     logger.log(&DAOEvent::ProposalCreated {
         proposal_id,
@@ -117,28 +134,39 @@ fn dao_vote(
         return Err(Error::AlreadyVoted.into());
     }
 
-    let proposal = state
+    let proposal_data = state
         .proposals
         .get_mut(proposal_id as usize)
         .ok_or(Error::ProposalNotFound)?;
     if vote_for {
-        proposal.votes_for += 1;
+        proposal_data.1.votes_for += 1;
     } else {
-        proposal.votes_against += 1;
+        proposal_data.1.votes_against += 1;
     }
     state.votes.push((proposal_id, sender));
 
     logger.log(&DAOEvent::Voted {
         proposal_id,
-        votes_for: proposal.votes_for,
-        votes_against: proposal.votes_against,
+        votes_for: proposal_data.1.votes_for,
+        votes_against: proposal_data.1.votes_against,
     })?;
+
+    let total = state.members.len();
+
+    if proposal_data.1.votes_for > (total / 2).try_into().unwrap() {
+        proposal_data.1.status = Status::Approved
+    } else if proposal_data.1.votes_against > (total / 2).try_into().unwrap() {
+        proposal_data.1.status = Status::Denied
+    }
 
     Ok(())
 }
 
 #[receive(contract = "DAO", name = "all_proposals", return_value = "DAOState")]
-fn dao_all_proposals(_ctx: &ReceiveContext, host: &Host<DAOState>) -> ReceiveResult<Vec<Proposal>> {
+fn dao_all_proposals(
+    _ctx: &ReceiveContext,
+    host: &Host<DAOState>,
+) -> ReceiveResult<Vec<(u64, Proposal)>> {
     let proposals = host.state().proposals.clone();
     Ok(proposals)
 }
