@@ -28,6 +28,11 @@ pub enum Status {
     Denied,
 }
 
+#[derive(Clone, Serialize, SchemaType)]
+struct Member {
+    address: AccountAddress,
+}
+
 #[derive(Clone, Serialize, SchemaType, Debug, PartialEq, Eq)]
 pub struct ProposalInput {
     pub description: String,
@@ -174,5 +179,16 @@ fn dao_all_proposals(
 /// Insert some CCD into DAO, allowed by anyone.
 #[receive(contract = "DAO", name = "insert", payable)]
 fn dao_insert(_ctx: &ReceiveContext, _host: &Host<DAOState>, _amount: Amount) -> ReceiveResult<()> {
+    Ok(())
+}
+
+#[receive(contract = "DAO", name = "add_member", parameter = "Member", mutable)]
+fn dao_add_member(ctx: &ReceiveContext, host: &mut Host<DAOState>) -> ReceiveResult<()> {
+    let state = host.state_mut();
+    if ctx.invoker() != state.admin {
+        return Err(Error::Unauthorized.into());
+    }
+    let member: Member = ctx.parameter_cursor().get()?;
+    state.members.push(member.address);
     Ok(())
 }
