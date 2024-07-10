@@ -5,7 +5,10 @@ use contract::*;
 const ACC_ADDR_OWNER: AccountAddress = AccountAddress([0u8; 32]);
 const ACC_ADDR_OTHER: AccountAddress = AccountAddress([0u8; 32]);
 
-/// The initial balance of the ALICE test account.
+/// A [`Signer`] with one set of keys, used for signing transactions.
+const SIGNER: Signer = Signer::with_one_key();
+
+/// The initial balance for the test accounts.
 const ACC_INITIAL_BALANCE: Amount = Amount::from_ccd(10_000);
 
 fn setup_chain_and_contract() -> (Chain, ContractInitSuccess) {
@@ -70,4 +73,34 @@ fn test_insert() {
         chain.contract_balance(initialization.contract_address),
         Some(insert_amount)
     );
+}
+
+#[test]
+fn test_add_member() {
+    let (mut chain, init) = setup_chain_and_contract();
+
+    let update = chain
+        .contract_update(
+            SIGNER,
+            ACC_ADDR_OWNER,
+            Address::Account(ACC_ADDR_OWNER),
+            Energy::from(10_000),
+            UpdateContractPayload {
+                address: init.contract_address,
+                amount: Amount::zero(),
+                receive_name: OwnedReceiveName::new_unchecked("DAO.add_member".to_string()),
+                message: OwnedParameter::from_serial(&ACC_ADDR_OTHER).expect("Added new member"),
+            },
+        )
+        .expect("Update succeeds with new member.");
+
+    check_add_member(&update, ACC_ADDR_OTHER);
+}
+
+fn check_add_member(update: &ContractInvokeSuccess, member: AccountAddress) {
+    let events: Vec<DAOEvent> = update
+        .events()
+        .flat_map(|(_addr, events)| events.iter().map(|e| e.parse().expect("Deserialize event")))
+        .collect();
+    assert_eq!(events, [DAOEvent::MemberAdded { address: member }]);
 }
