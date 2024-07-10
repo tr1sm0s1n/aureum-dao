@@ -54,8 +54,8 @@ pub enum Error {
     NotApproved,
 }
 
-#[derive(Serialize, SchemaType)]
-enum DAOEvent {
+#[derive(Debug, Serialize, SchemaType, PartialEq, Eq)]
+pub enum DAOEvent {
     ProposalCreated {
         proposal_id: u64,
         description: String,
@@ -65,6 +65,9 @@ enum DAOEvent {
         proposal_id: u64,
         votes_for: u64,
         votes_against: u64,
+    },
+    MemberAdded {
+        address: AccountAddress,
     },
 }
 
@@ -185,14 +188,29 @@ fn dao_insert(_ctx: &ReceiveContext, _host: &Host<DAOState>, _amount: Amount) ->
     Ok(())
 }
 
-#[receive(contract = "DAO", name = "add_member", parameter = "Member", mutable)]
-fn dao_add_member(ctx: &ReceiveContext, host: &mut Host<DAOState>) -> ReceiveResult<()> {
+#[receive(
+    contract = "DAO",
+    name = "add_member",
+    parameter = "Member",
+    mutable,
+    enable_logger
+)]
+fn dao_add_member(
+    ctx: &ReceiveContext,
+    host: &mut Host<DAOState>,
+    logger: &mut Logger,
+) -> ReceiveResult<()> {
     let state = host.state_mut();
     if ctx.invoker() != state.admin {
         return Err(Error::Unauthorized.into());
     }
     let member: Member = ctx.parameter_cursor().get()?;
     state.members.push(member.address);
+
+    logger.log(&DAOEvent::MemberAdded {
+        address: member.address,
+    })?;
+
     Ok(())
 }
 
