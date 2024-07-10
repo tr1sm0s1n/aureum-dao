@@ -26,7 +26,7 @@ fn setup_chain_and_contract() -> (Chain, ContractInitSuccess) {
         .contract_init(
             Signer::with_one_key(),
             ACC_ADDR_OWNER,
-            Energy::from(10000),
+            Energy::from(10_000),
             InitContractPayload {
                 amount: Amount::zero(),
                 mod_ref: deployment.module_reference,
@@ -59,7 +59,7 @@ fn test_insert() {
         Signer::with_one_key(),
         ACC_ADDR_OWNER,
         Address::Account(ACC_ADDR_OWNER),
-        Energy::from(10000),
+        Energy::from(10_000),
         UpdateContractPayload {
             amount: insert_amount,
             address: initialization.contract_address,
@@ -97,10 +97,52 @@ fn test_add_member() {
     check_add_member(&update, ACC_ADDR_OTHER);
 }
 
+#[test]
+fn test_create_proposal() {
+    let (mut chain, init) = setup_chain_and_contract();
+
+    let input = ProposalInput {
+        description: "fdfdffd".to_string(),
+        amount: Amount { micro_ccd: 100_000 },
+    };
+
+    let update = chain
+        .contract_update(
+            SIGNER,
+            ACC_ADDR_OWNER,
+            Address::Account(ACC_ADDR_OWNER),
+            Energy::from(10_000),
+            UpdateContractPayload {
+                address: init.contract_address,
+                amount: Amount::zero(),
+                receive_name: OwnedReceiveName::new_unchecked("DAO.create_proposal".to_string()),
+                message: OwnedParameter::from_serial(&input).expect("Created proposal"),
+            },
+        )
+        .expect("Update succeeds with new proposal.");
+
+    check_create_proposal(&update, input.description, input.amount);
+}
+
 fn check_add_member(update: &ContractInvokeSuccess, member: AccountAddress) {
     let events: Vec<DAOEvent> = update
         .events()
         .flat_map(|(_addr, events)| events.iter().map(|e| e.parse().expect("Deserialize event")))
         .collect();
     assert_eq!(events, [DAOEvent::MemberAdded { address: member }]);
+}
+
+fn check_create_proposal(update: &ContractInvokeSuccess, description: String, amount: Amount) {
+    let events: Vec<DAOEvent> = update
+        .events()
+        .flat_map(|(_addr, events)| events.iter().map(|e| e.parse().expect("Deserialize event")))
+        .collect();
+    assert_eq!(
+        events,
+        [DAOEvent::ProposalCreated {
+            proposal_id: 0,
+            description,
+            amount
+        }]
+    );
 }
