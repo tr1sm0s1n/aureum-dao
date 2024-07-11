@@ -94,7 +94,12 @@ fn test_add_member() {
         )
         .expect("Update succeeds with new member.");
 
-    check_add_member(&update, ACC_ADDR_OTHER);
+    check_event(
+        &update,
+        DAOEvent::MemberAdded {
+            address: ACC_ADDR_OTHER,
+        },
+    );
 }
 
 #[test]
@@ -121,28 +126,20 @@ fn test_create_proposal() {
         )
         .expect("Update succeeds with new proposal.");
 
-    check_create_proposal(&update, input.description, input.amount);
-}
-
-fn check_add_member(update: &ContractInvokeSuccess, member: AccountAddress) {
-    let events: Vec<DAOEvent> = update
-        .events()
-        .flat_map(|(_addr, events)| events.iter().map(|e| e.parse().expect("Deserialize event")))
-        .collect();
-    assert_eq!(events, [DAOEvent::MemberAdded { address: member }]);
-}
-
-fn check_create_proposal(update: &ContractInvokeSuccess, description: String, amount: Amount) {
-    let events: Vec<DAOEvent> = update
-        .events()
-        .flat_map(|(_addr, events)| events.iter().map(|e| e.parse().expect("Deserialize event")))
-        .collect();
-    assert_eq!(
-        events,
-        [DAOEvent::ProposalCreated {
+    check_event(
+        &update,
+        DAOEvent::ProposalCreated {
             proposal_id: 0,
-            description,
-            amount
-        }]
-    );
+            description: input.description,
+            amount: input.amount,
+        },
+    )
+}
+
+fn check_event(update: &ContractInvokeSuccess, event: DAOEvent) {
+    let events: Vec<DAOEvent> = update
+        .events()
+        .flat_map(|(_addr, events)| events.iter().map(|e| e.parse().expect("Deserialize event")))
+        .collect();
+    assert_eq!(events, [event]);
 }
