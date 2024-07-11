@@ -39,6 +39,12 @@ pub struct ProposalInput {
     pub amount: Amount,
 }
 
+#[derive(Debug, Serialize, SchemaType, PartialEq, Eq)]
+pub struct VoteInput {
+    pub proposal_id: u64,
+    pub vote_for: bool,
+}
+
 /// Your smart contract errors.
 #[derive(Debug, PartialEq, Eq, Reject, Serialize, SchemaType)]
 pub enum Error {
@@ -89,8 +95,8 @@ fn dao_init(ctx: &InitContext, _state_builder: &mut StateBuilder) -> InitResult<
     name = "create_proposal",
     parameter = "ProposalInput",
     error = "Error",
-    enable_logger,
-    mutable
+    mutable,
+    enable_logger
 )]
 fn dao_create_proposal(
     ctx: &ReceiveContext,
@@ -123,13 +129,20 @@ fn dao_create_proposal(
     Ok(())
 }
 
-#[receive(contract = "DAO", name = "vote", mutable, enable_logger)]
+#[receive(
+    contract = "DAO",
+    name = "vote",
+    parameter = "VoteInput",
+    error = "Error",
+    mutable,
+    enable_logger
+)]
 fn dao_vote(
     ctx: &ReceiveContext,
     host: &mut Host<DAOState>,
     logger: &mut Logger,
 ) -> ReceiveResult<()> {
-    let (proposal_id, vote_for): (u64, bool) = ctx.parameter_cursor().get()?;
+    let input: VoteInput = ctx.parameter_cursor().get()?;
     let state = host.state_mut();
     let sender = ctx.invoker();
 
@@ -140,24 +153,24 @@ fn dao_vote(
     if state
         .votes
         .iter()
-        .any(|(id, addr)| *id == proposal_id && *addr == sender)
+        .any(|(id, addr)| *id == input.proposal_id && *addr == sender)
     {
         return Err(Error::AlreadyVoted.into());
     }
 
     let proposal_data = state
         .proposals
-        .get_mut(proposal_id as usize)
+        .get_mut(input.proposal_id as usize)
         .ok_or(Error::ProposalNotFound)?;
-    if vote_for {
+    if input.vote_for {
         proposal_data.1.votes_for += 1;
     } else {
         proposal_data.1.votes_against += 1;
     }
-    state.votes.push((proposal_id, sender));
+    state.votes.push((input.proposal_id, sender));
 
     logger.log(&DAOEvent::Voted {
-        proposal_id,
+        proposal_id: input.proposal_id,
         votes_for: proposal_data.1.votes_for,
         votes_against: proposal_data.1.votes_against,
     })?;
