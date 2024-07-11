@@ -345,6 +345,97 @@ fn test_unauthorized_vote() {
     assert_eq!(rv, Error::Unauthorized);
 }
 
+#[test]
+fn test_double_vote() {
+    let (mut chain, init) = setup_chain_and_contract();
+
+    let input = ProposalInput {
+        description: "Kerala Flood Relief".to_string(),
+        amount: Amount { micro_ccd: 100_000 },
+    };
+
+    chain
+        .contract_update(
+            SIGNER,
+            ACC_ADDR_OWNER,
+            Address::Account(ACC_ADDR_OWNER),
+            Energy::from(10_000),
+            UpdateContractPayload {
+                address: init.contract_address,
+                amount: Amount::zero(),
+                receive_name: OwnedReceiveName::new_unchecked("DAO.create_proposal".to_string()),
+                message: OwnedParameter::from_serial(&input).expect("Create proposal"),
+            },
+        )
+        .expect("Update succeeds with new proposal");
+
+    let v = VoteInput {
+        proposal_id: 0,
+        vote_for: true,
+    };
+
+    chain
+        .contract_update(
+            SIGNER,
+            ACC_ADDR_OWNER,
+            Address::Account(ACC_ADDR_OWNER),
+            Energy::from(10_000),
+            UpdateContractPayload {
+                address: init.contract_address,
+                amount: Amount::zero(),
+                receive_name: OwnedReceiveName::new_unchecked("DAO.vote".to_string()),
+                message: OwnedParameter::from_serial(&v).expect("Vote proposal"),
+            },
+        )
+        .expect("Update succeeds with new vote");
+
+    let update = chain
+        .contract_update(
+            SIGNER,
+            ACC_ADDR_OWNER,
+            Address::Account(ACC_ADDR_OWNER),
+            Energy::from(10_000),
+            UpdateContractPayload {
+                address: init.contract_address,
+                amount: Amount::zero(),
+                receive_name: OwnedReceiveName::new_unchecked("DAO.vote".to_string()),
+                message: OwnedParameter::from_serial(&v).expect("Vote proposal"),
+            },
+        )
+        .expect_err("Update succeeds with new vote");
+
+    let rv: Error = update.parse_return_value().expect("Deserialize Error");
+    assert_eq!(rv, Error::AlreadyVoted);
+}
+
+#[test]
+fn test_not_found() {
+    let (mut chain, init) = setup_chain_and_contract();
+
+    let v = VoteInput {
+        proposal_id: 0,
+        vote_for: true,
+    };
+
+    let update = chain
+        .contract_update(
+            SIGNER,
+            ACC_ADDR_OWNER,
+            Address::Account(ACC_ADDR_OWNER),
+            Energy::from(10_000),
+            UpdateContractPayload {
+                address: init.contract_address,
+                amount: Amount::zero(),
+                receive_name: OwnedReceiveName::new_unchecked("DAO.vote".to_string()),
+                message: OwnedParameter::from_serial(&v).expect("Vote proposal"),
+            },
+        )
+        .expect_err("Update succeeds with new vote");
+
+    let rv: Error = update.parse_return_value().expect("Deserialize Error");
+    assert_eq!(rv, Error::ProposalNotFound);
+}
+
 fn check_event(update: &ContractInvokeSuccess, event: DAOEvent) {
     let events: Vec<DAOEvent> = update
         .events()
