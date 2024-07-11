@@ -11,17 +11,17 @@ struct DAOState {
     admin: AccountAddress,
 }
 
-#[derive(Clone, Serialize, SchemaType)]
-struct Proposal {
-    proposer: AccountAddress,
-    description: String,
-    amount: Amount,
-    votes_for: u64,
-    votes_against: u64,
-    status: Status,
+#[derive(Debug, Clone, Serialize, SchemaType, PartialEq, Eq)]
+pub struct Proposal {
+    pub proposer: AccountAddress,
+    pub description: String,
+    pub amount: Amount,
+    pub votes_for: u64,
+    pub votes_against: u64,
+    pub status: Status,
 }
 
-#[derive(Clone, Serialize, SchemaType, PartialEq)]
+#[derive(Debug, Clone, Serialize, SchemaType, PartialEq, Eq)]
 pub enum Status {
     Active,
     Approved,
