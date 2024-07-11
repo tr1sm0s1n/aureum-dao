@@ -2,6 +2,8 @@
 CONTRACT_DIR = cd contract/
 SERVER_DIR = cd server/
 
+.PHONY: concordium contract test build run fmt help
+
 #? concordium: Install Concordium SDK.
 concordium:
 	rustup target add wasm32-unknown-unknown
