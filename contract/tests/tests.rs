@@ -107,7 +107,7 @@ fn test_create_proposal() {
     let (mut chain, init) = setup_chain_and_contract();
 
     let input = ProposalInput {
-        description: "fdfdffd".to_string(),
+        description: "Kerala Flood Relief".to_string(),
         amount: Amount { micro_ccd: 100_000 },
     };
 
@@ -134,6 +134,90 @@ fn test_create_proposal() {
             amount: input.amount,
         },
     )
+}
+
+#[test]
+fn test_all_proposals() {
+    let (mut chain, init) = setup_chain_and_contract();
+
+    let input = ProposalInput {
+        description: "Kerala Flood Relief".to_string(),
+        amount: Amount { micro_ccd: 100_000 },
+    };
+
+    chain
+        .contract_update(
+            SIGNER,
+            ACC_ADDR_OWNER,
+            Address::Account(ACC_ADDR_OWNER),
+            Energy::from(10_000),
+            UpdateContractPayload {
+                address: init.contract_address,
+                amount: Amount::zero(),
+                receive_name: OwnedReceiveName::new_unchecked("DAO.create_proposal".to_string()),
+                message: OwnedParameter::from_serial(&input).expect("Created proposal"),
+            },
+        )
+        .expect("Update succeeds with new proposal.");
+
+    chain
+        .contract_update(
+            SIGNER,
+            ACC_ADDR_OTHER,
+            Address::Account(ACC_ADDR_OTHER),
+            Energy::from(10_000),
+            UpdateContractPayload {
+                address: init.contract_address,
+                amount: Amount::zero(),
+                receive_name: OwnedReceiveName::new_unchecked("DAO.create_proposal".to_string()),
+                message: OwnedParameter::from_serial(&input).expect("Created proposal"),
+            },
+        )
+        .expect("Update succeeds with new proposal.");
+
+    let invoke = chain
+        .contract_invoke(
+            ACC_ADDR_OWNER,
+            Address::Account(ACC_ADDR_OWNER),
+            Energy::from(10_000),
+            UpdateContractPayload {
+                amount: Amount::zero(),
+                receive_name: OwnedReceiveName::new_unchecked("DAO.all_proposals".to_string()),
+                address: init.contract_address,
+                message: OwnedParameter::empty(),
+            },
+        )
+        .expect("Invoke add_proposals");
+
+    let return_value: Vec<(u64, Proposal)> = invoke
+        .parse_return_value()
+        .expect("add_proposals return value");
+    let expected_value = vec![
+        (
+            0,
+            Proposal {
+                proposer: ACC_ADDR_OWNER,
+                description: input.description.clone(),
+                amount: input.amount,
+                votes_for: 0,
+                votes_against: 0,
+                status: Status::Active,
+            },
+        ),
+        (
+            1,
+            Proposal {
+                proposer: ACC_ADDR_OTHER,
+                description: input.description,
+                amount: input.amount,
+                votes_for: 0,
+                votes_against: 0,
+                status: Status::Active,
+            },
+        ),
+    ];
+
+    assert_eq!(return_value, expected_value);
 }
 
 fn check_event(update: &ContractInvokeSuccess, event: DAOEvent) {
