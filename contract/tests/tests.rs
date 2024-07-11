@@ -1,9 +1,11 @@
 use concordium_smart_contract_testing::*;
+use concordium_std_derive::*;
 use contract::*;
 
-/// A test account.
-const ACC_ADDR_OWNER: AccountAddress = AccountAddress([0u8; 32]);
-const ACC_ADDR_OTHER: AccountAddress = AccountAddress([0u8; 32]);
+const ACC_ADDR_OWNER: AccountAddress =
+    account_address!("2xBpaHottqhwFZURMZW4uZduQvpxNDSy46iXMYs9kceNGaPpZX");
+const ACC_ADDR_OTHER: AccountAddress =
+    account_address!("2xdTv8awN1BjgYEw8W1BVXVtiEwG2b29U8KoZQqJrDuEqddseE");
 
 /// A [`Signer`] with one set of keys, used for signing transactions.
 const SIGNER: Signer = Signer::with_one_key();
@@ -24,7 +26,7 @@ fn setup_chain_and_contract() -> (Chain, ContractInitSuccess) {
 
     let initialization = chain
         .contract_init(
-            Signer::with_one_key(),
+            SIGNER,
             ACC_ADDR_OWNER,
             Energy::from(10_000),
             InitContractPayload {
@@ -56,7 +58,7 @@ fn test_insert() {
 
     // Insert 10 CCD.
     let update = chain.contract_update(
-        Signer::with_one_key(),
+        SIGNER,
         ACC_ADDR_OWNER,
         Address::Account(ACC_ADDR_OWNER),
         Energy::from(10_000),
@@ -71,7 +73,8 @@ fn test_insert() {
     assert!(update.is_ok());
     assert_eq!(
         chain.contract_balance(initialization.contract_address),
-        Some(insert_amount)
+        Some(insert_amount),
+        "DAO is not updated with balance of 10 CCD"
     );
 }
 
@@ -89,10 +92,10 @@ fn test_add_member() {
                 address: init.contract_address,
                 amount: Amount::zero(),
                 receive_name: OwnedReceiveName::new_unchecked("DAO.add_member".to_string()),
-                message: OwnedParameter::from_serial(&ACC_ADDR_OTHER).expect("Added new member"),
+                message: OwnedParameter::from_serial(&ACC_ADDR_OTHER).expect("Add new member"),
             },
         )
-        .expect("Update succeeds with new member.");
+        .expect("Update succeeds with new member");
 
     check_event(
         &update,
@@ -121,10 +124,10 @@ fn test_create_proposal() {
                 address: init.contract_address,
                 amount: Amount::zero(),
                 receive_name: OwnedReceiveName::new_unchecked("DAO.create_proposal".to_string()),
-                message: OwnedParameter::from_serial(&input).expect("Created proposal"),
+                message: OwnedParameter::from_serial(&input).expect("Create proposal"),
             },
         )
-        .expect("Update succeeds with new proposal.");
+        .expect("Update succeeds with new proposal");
 
     check_event(
         &update,
@@ -155,10 +158,10 @@ fn test_all_proposals() {
                 address: init.contract_address,
                 amount: Amount::zero(),
                 receive_name: OwnedReceiveName::new_unchecked("DAO.create_proposal".to_string()),
-                message: OwnedParameter::from_serial(&input).expect("Created proposal"),
+                message: OwnedParameter::from_serial(&input).expect("Create proposal"),
             },
         )
-        .expect("Update succeeds with new proposal.");
+        .expect("Update succeeds with new proposal");
 
     chain
         .contract_update(
@@ -170,10 +173,10 @@ fn test_all_proposals() {
                 address: init.contract_address,
                 amount: Amount::zero(),
                 receive_name: OwnedReceiveName::new_unchecked("DAO.create_proposal".to_string()),
-                message: OwnedParameter::from_serial(&input).expect("Created proposal"),
+                message: OwnedParameter::from_serial(&input).expect("Create proposal"),
             },
         )
-        .expect("Update succeeds with new proposal.");
+        .expect("Update succeeds with new proposal");
 
     let invoke = chain
         .contract_invoke(
@@ -187,11 +190,10 @@ fn test_all_proposals() {
                 message: OwnedParameter::empty(),
             },
         )
-        .expect("Invoke add_proposals");
+        .expect("Fetch all proposals");
 
-    let return_value: Vec<(u64, Proposal)> = invoke
-        .parse_return_value()
-        .expect("add_proposals return value");
+    let return_value: Vec<(u64, Proposal)> =
+        invoke.parse_return_value().expect("Proposals return value");
     let expected_value = vec![
         (
             0,
@@ -218,6 +220,129 @@ fn test_all_proposals() {
     ];
 
     assert_eq!(return_value, expected_value);
+}
+
+#[test]
+fn test_authorized_vote() {
+    let (mut chain, init) = setup_chain_and_contract();
+
+    let input = ProposalInput {
+        description: "Kerala Flood Relief".to_string(),
+        amount: Amount { micro_ccd: 100_000 },
+    };
+
+    chain
+        .contract_update(
+            SIGNER,
+            ACC_ADDR_OWNER,
+            Address::Account(ACC_ADDR_OWNER),
+            Energy::from(10_000),
+            UpdateContractPayload {
+                address: init.contract_address,
+                amount: Amount::zero(),
+                receive_name: OwnedReceiveName::new_unchecked("DAO.create_proposal".to_string()),
+                message: OwnedParameter::from_serial(&input).expect("Create proposal"),
+            },
+        )
+        .expect("Update succeeds with new proposal");
+
+    let v = VoteInput {
+        proposal_id: 0,
+        vote_for: true,
+    };
+
+    chain
+        .contract_update(
+            SIGNER,
+            ACC_ADDR_OWNER,
+            Address::Account(ACC_ADDR_OWNER),
+            Energy::from(10_000),
+            UpdateContractPayload {
+                address: init.contract_address,
+                amount: Amount::zero(),
+                receive_name: OwnedReceiveName::new_unchecked("DAO.vote".to_string()),
+                message: OwnedParameter::from_serial(&v).expect("Vote proposal"),
+            },
+        )
+        .expect("Update succeeds with new vote");
+
+    let invoke = chain
+        .contract_invoke(
+            ACC_ADDR_OWNER,
+            Address::Account(ACC_ADDR_OWNER),
+            Energy::from(10_000),
+            UpdateContractPayload {
+                amount: Amount::zero(),
+                receive_name: OwnedReceiveName::new_unchecked("DAO.all_proposals".to_string()),
+                address: init.contract_address,
+                message: OwnedParameter::empty(),
+            },
+        )
+        .expect("Fetch all proposals");
+
+    let return_value: Vec<(u64, Proposal)> =
+        invoke.parse_return_value().expect("Proposals return value");
+    let expected_value = vec![(
+        0,
+        Proposal {
+            proposer: ACC_ADDR_OWNER,
+            description: input.description.clone(),
+            amount: input.amount,
+            votes_for: 1,
+            votes_against: 0,
+            status: Status::Approved,
+        },
+    )];
+
+    assert_eq!(return_value, expected_value);
+}
+
+#[test]
+fn test_unauthorized_vote() {
+    let (mut chain, init) = setup_chain_and_contract();
+
+    let input = ProposalInput {
+        description: "Kerala Flood Relief".to_string(),
+        amount: Amount { micro_ccd: 100_000 },
+    };
+
+    chain
+        .contract_update(
+            SIGNER,
+            ACC_ADDR_OWNER,
+            Address::Account(ACC_ADDR_OWNER),
+            Energy::from(10_000),
+            UpdateContractPayload {
+                address: init.contract_address,
+                amount: Amount::zero(),
+                receive_name: OwnedReceiveName::new_unchecked("DAO.create_proposal".to_string()),
+                message: OwnedParameter::from_serial(&input).expect("Create proposal"),
+            },
+        )
+        .expect("Update succeeds with new proposal");
+
+    let v = VoteInput {
+        proposal_id: 0,
+        vote_for: true,
+    };
+
+    let update = chain
+        .contract_update(
+            SIGNER,
+            ACC_ADDR_OTHER,
+            Address::Account(ACC_ADDR_OTHER),
+            Energy::from(10_000),
+            UpdateContractPayload {
+                address: init.contract_address,
+                amount: Amount::zero(),
+                receive_name: OwnedReceiveName::new_unchecked("DAO.vote".to_string()),
+                message: OwnedParameter::from_serial(&v).expect("Vote proposal"),
+            },
+        )
+        .expect_err("Update succeeds with new vote");
+
+    let rv: Error = update.parse_return_value().expect("Deserialize Error");
+    assert_eq!(rv, Error::Unauthorized);
 }
 
 fn check_event(update: &ContractInvokeSuccess, event: DAOEvent) {
