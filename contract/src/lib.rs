@@ -252,8 +252,8 @@ fn dao_add_member(
     Ok(())
 }
 
-#[receive(contract = "DAO", name = "withdraw")]
-fn dao_withdraw(ctx: &ReceiveContext, host: &Host<DAOState>) -> ReceiveResult<()> {
+#[receive(contract = "DAO", name = "withdraw", parameter = "u64", mutable)]
+fn dao_withdraw(ctx: &ReceiveContext, host: &mut Host<DAOState>) -> ReceiveResult<()> {
     let proposal_id: u64 = ctx.parameter_cursor().get()?;
     let state = host.state();
     let caller = ctx.invoker();
@@ -262,7 +262,7 @@ fn dao_withdraw(ctx: &ReceiveContext, host: &Host<DAOState>) -> ReceiveResult<()
         if *id == proposal_id && p.proposer == caller {
             match p.status {
                 Status::Approved => {
-                    if p.amount < host.self_balance() {
+                    if p.amount <= host.self_balance() {
                         return Ok(host.invoke_transfer(&caller, p.amount)?);
                     } else {
                         return Err(DAOError::InsufficientBalance.into());
