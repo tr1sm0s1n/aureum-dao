@@ -41,6 +41,14 @@ fn setup_chain_and_contract() -> (Chain, ContractInitSuccess) {
     (chain, initialization)
 }
 
+fn check_event(update: &ContractInvokeSuccess, event: DAOEvent) {
+    let events: Vec<DAOEvent> = update
+        .events()
+        .flat_map(|(_addr, events)| events.iter().map(|e| e.parse().expect("Deserialize event")))
+        .collect();
+    assert_eq!(events, [event]);
+}
+
 #[test]
 fn test_init() {
     let (chain, initialization) = setup_chain_and_contract();
@@ -79,6 +87,29 @@ fn test_insert() {
 }
 
 #[test]
+fn test_admin() {
+    let (mut chain, init) = setup_chain_and_contract();
+
+    let update = chain
+        .contract_update(
+            SIGNER,
+            ACC_ADDR_OTHER,
+            Address::Account(ACC_ADDR_OTHER),
+            Energy::from(10_000),
+            UpdateContractPayload {
+                address: init.contract_address,
+                amount: Amount::zero(),
+                receive_name: OwnedReceiveName::new_unchecked("DAO.add_member".to_string()),
+                message: OwnedParameter::from_serial(&ACC_ADDR_OTHER).expect("Add new member"),
+            },
+        )
+        .expect_err("Update succeeds with new member");
+
+    let rv: DAOError = update.parse_return_value().expect("Deserialize Error");
+    assert_eq!(rv, DAOError::Unauthorized);
+}
+
+#[test]
 fn test_add_member() {
     let (mut chain, init) = setup_chain_and_contract();
 
@@ -103,6 +134,44 @@ fn test_add_member() {
             address: ACC_ADDR_OTHER,
         },
     );
+}
+
+#[test]
+fn test_duplicate_member() {
+    let (mut chain, init) = setup_chain_and_contract();
+
+    chain
+        .contract_update(
+            SIGNER,
+            ACC_ADDR_OWNER,
+            Address::Account(ACC_ADDR_OWNER),
+            Energy::from(10_000),
+            UpdateContractPayload {
+                address: init.contract_address,
+                amount: Amount::zero(),
+                receive_name: OwnedReceiveName::new_unchecked("DAO.add_member".to_string()),
+                message: OwnedParameter::from_serial(&ACC_ADDR_OTHER).expect("Add new member"),
+            },
+        )
+        .expect("Update succeeds with new member");
+
+    let update = chain
+        .contract_update(
+            SIGNER,
+            ACC_ADDR_OWNER,
+            Address::Account(ACC_ADDR_OWNER),
+            Energy::from(10_000),
+            UpdateContractPayload {
+                address: init.contract_address,
+                amount: Amount::zero(),
+                receive_name: OwnedReceiveName::new_unchecked("DAO.add_member".to_string()),
+                message: OwnedParameter::from_serial(&ACC_ADDR_OTHER).expect("Add new member"),
+            },
+        )
+        .expect_err("Update succeeds with new member");
+
+    let rv: DAOError = update.parse_return_value().expect("Deserialize Error");
+    assert_eq!(rv, DAOError::AlreadyAdded);
 }
 
 #[test]
@@ -341,8 +410,8 @@ fn test_unauthorized_vote() {
         )
         .expect_err("Update succeeds with new vote");
 
-    let rv: Error = update.parse_return_value().expect("Deserialize Error");
-    assert_eq!(rv, Error::Unauthorized);
+    let rv: DAOError = update.parse_return_value().expect("Deserialize Error");
+    assert_eq!(rv, DAOError::Unauthorized);
 }
 
 #[test]
@@ -404,8 +473,8 @@ fn test_double_vote() {
         )
         .expect_err("Update succeeds with new vote");
 
-    let rv: Error = update.parse_return_value().expect("Deserialize Error");
-    assert_eq!(rv, Error::AlreadyVoted);
+    let rv: DAOError = update.parse_return_value().expect("Deserialize Error");
+    assert_eq!(rv, DAOError::AlreadyVoted);
 }
 
 #[test]
@@ -432,14 +501,6 @@ fn test_not_found() {
         )
         .expect_err("Update succeeds with new vote");
 
-    let rv: Error = update.parse_return_value().expect("Deserialize Error");
-    assert_eq!(rv, Error::ProposalNotFound);
-}
-
-fn check_event(update: &ContractInvokeSuccess, event: DAOEvent) {
-    let events: Vec<DAOEvent> = update
-        .events()
-        .flat_map(|(_addr, events)| events.iter().map(|e| e.parse().expect("Deserialize event")))
-        .collect();
-    assert_eq!(events, [event]);
+    let rv: DAOError = update.parse_return_value().expect("Deserialize Error");
+    assert_eq!(rv, DAOError::ProposalNotFound);
 }
