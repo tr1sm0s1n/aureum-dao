@@ -260,19 +260,20 @@ fn dao_withdraw(ctx: &ReceiveContext, host: &Host<DAOState>) -> ReceiveResult<()
 
     for (id, p) in &state.proposals {
         if *id == proposal_id && p.proposer == caller {
-            if p.status == Status::Approved {
-                if p.amount < host.self_balance() {
-                    return Ok(host.invoke_transfer(&caller, p.amount)?);
-                } else {
-                    return Err(Error::InsufficientBalance.into());
+            match p.status {
+                Status::Approved => {
+                    if p.amount < host.self_balance() {
+                        return Ok(host.invoke_transfer(&caller, p.amount)?);
+                    } else {
+                        return Err(DAOError::InsufficientBalance.into());
+                    }
                 }
-            } else if p.status == Status::Denied {
-                return Err(Error::ProposalDenied.into());
-            } else {
-                return Err(Error::NotApproved.into());
+                Status::Collected => return Err(DAOError::AmountCollected.into()),
+                Status::Denied => return Err(DAOError::ProposalDenied.into()),
+                _ => return Err(DAOError::NotApproved.into()),
             }
         } else {
-            return Err(Error::Unauthorized.into());
+            return Err(DAOError::Unauthorized.into());
         }
     }
     Ok(())
