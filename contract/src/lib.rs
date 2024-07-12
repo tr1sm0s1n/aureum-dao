@@ -4,11 +4,11 @@ use concordium_std::*;
 use core::fmt::Debug;
 
 #[derive(Serialize, SchemaType)]
-struct DAOState {
-    proposals: Vec<(u64, Proposal)>,
-    votes: Vec<(u64, AccountAddress)>, // (proposal_id, voter_address)
-    members: Vec<AccountAddress>,
-    admin: AccountAddress,
+pub struct DAOState {
+    pub proposals: Vec<(u64, Proposal)>,
+    pub votes: Vec<(u64, AccountAddress)>, // (proposal_id, voter_address)
+    pub members: Vec<AccountAddress>,
+    pub admin: AccountAddress,
 }
 
 #[derive(Debug, Clone, Serialize, SchemaType, PartialEq, Eq)]
@@ -26,6 +26,7 @@ pub enum Status {
     Active,
     Approved,
     Denied,
+    Collected,
 }
 
 #[derive(Clone, Serialize, SchemaType)]
@@ -47,17 +48,19 @@ pub struct VoteInput {
 
 /// Your smart contract errors.
 #[derive(Debug, PartialEq, Eq, Reject, Serialize, SchemaType)]
-pub enum Error {
+pub enum DAOError {
     /// Failed parsing the parameter.
     #[from(ParseError)]
     ParseParams,
     /// Your error
+    Unauthorized,
+    AlreadyAdded,
     ProposalNotFound,
     AlreadyVoted,
-    Unauthorized,
-    InsufficientBalance,
-    ProposalDenied,
     NotApproved,
+    ProposalDenied,
+    InsufficientBalance,
+    AmountCollected,
 }
 
 #[derive(Debug, Serialize, SchemaType, PartialEq, Eq)]
@@ -94,7 +97,7 @@ fn dao_init(ctx: &InitContext, _state_builder: &mut StateBuilder) -> InitResult<
     contract = "DAO",
     name = "create_proposal",
     parameter = "ProposalInput",
-    error = "Error",
+    error = "DAOError",
     mutable,
     enable_logger
 )]
@@ -133,7 +136,7 @@ fn dao_create_proposal(
     contract = "DAO",
     name = "vote",
     parameter = "VoteInput",
-    error = "Error",
+    error = "DAOError",
     mutable,
     enable_logger
 )]
@@ -147,7 +150,7 @@ fn dao_vote(
     let sender = ctx.invoker();
 
     if state.members.iter().any(|addr| *addr != sender) {
-        return Err(Error::Unauthorized.into());
+        return Err(DAOError::Unauthorized.into());
     }
 
     if state
@@ -155,13 +158,13 @@ fn dao_vote(
         .iter()
         .any(|(id, addr)| *id == input.proposal_id && *addr == sender)
     {
-        return Err(Error::AlreadyVoted.into());
+        return Err(DAOError::AlreadyVoted.into());
     }
 
     let proposal_data = state
         .proposals
         .get_mut(input.proposal_id as usize)
-        .ok_or(Error::ProposalNotFound)?;
+        .ok_or(DAOError::ProposalNotFound)?;
     if input.vote_for {
         proposal_data.1.votes_for += 1;
     } else {
@@ -186,13 +189,30 @@ fn dao_vote(
     Ok(())
 }
 
-#[receive(contract = "DAO", name = "all_proposals", return_value = "DAOState")]
+#[receive(
+    contract = "DAO",
+    name = "all_proposals",
+    return_value = "Vec<(u64, Proposal)>",
+    error = "DAOError"
+)]
 fn dao_all_proposals(
     _ctx: &ReceiveContext,
     host: &Host<DAOState>,
 ) -> ReceiveResult<Vec<(u64, Proposal)>> {
-    let proposals = host.state().proposals.clone();
-    Ok(proposals)
+    Ok(host.state().proposals.clone())
+}
+
+#[receive(
+    contract = "DAO",
+    name = "all_members",
+    return_value = "Vec<AccountAddress>",
+    error = "DAOError"
+)]
+fn dao_all_members(
+    _ctx: &ReceiveContext,
+    host: &Host<DAOState>,
+) -> ReceiveResult<Vec<AccountAddress>> {
+    Ok(host.state().members.clone())
 }
 
 /// Insert some CCD into DAO, allowed by anyone.
@@ -215,10 +235,15 @@ fn dao_add_member(
 ) -> ReceiveResult<()> {
     let state = host.state_mut();
     if ctx.invoker() != state.admin {
-        return Err(Error::Unauthorized.into());
+        return Err(DAOError::Unauthorized.into());
     }
     let member: Member = ctx.parameter_cursor().get()?;
-    state.members.push(member.address);
+
+    if !state.members.contains(&member.address) {
+        state.members.push(member.address);
+    } else {
+        return Err(DAOError::AlreadyAdded.into());
+    }
 
     logger.log(&DAOEvent::MemberAdded {
         address: member.address,

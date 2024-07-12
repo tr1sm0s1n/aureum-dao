@@ -6,8 +6,8 @@ SERVER_DIR = cd server/
 
 #? concordium: Install Concordium SDK.
 concordium:
-	rustup target add wasm32-unknown-unknown
-	cargo install --locked cargo-concordium
+	@rustup target add wasm32-unknown-unknown
+	@cargo install --locked cargo-concordium
 
 #? contract: Build contract.
 contract:
