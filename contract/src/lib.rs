@@ -255,26 +255,44 @@ fn dao_add_member(
 #[receive(contract = "DAO", name = "withdraw", parameter = "u64", mutable)]
 fn dao_withdraw(ctx: &ReceiveContext, host: &mut Host<DAOState>) -> ReceiveResult<()> {
     let proposal_id: u64 = ctx.parameter_cursor().get()?;
-    let state = host.state();
     let caller = ctx.invoker();
 
-    for (id, p) in &state.proposals {
-        if *id == proposal_id && p.proposer == caller {
-            match p.status {
-                Status::Approved => {
-                    if p.amount <= host.self_balance() {
-                        return Ok(host.invoke_transfer(&caller, p.amount)?);
-                    } else {
-                        return Err(DAOError::InsufficientBalance.into());
-                    }
-                }
-                Status::Collected => return Err(DAOError::AmountCollected.into()),
-                Status::Denied => return Err(DAOError::ProposalDenied.into()),
-                _ => return Err(DAOError::NotApproved.into()),
+    // Extract necessary information without borrowing state
+    let (proposal_status, proposal_amount) = {
+        let state = host.state();
+        let mut found_proposal = None;
+
+        for (id, p) in &state.proposals {
+            if *id == proposal_id && p.proposer == caller {
+                found_proposal = Some((p.status.clone(), p.amount));
+                break;
             }
-        } else {
-            return Err(DAOError::Unauthorized.into());
+        }
+
+        found_proposal.ok_or(DAOError::Unauthorized)?
+    };
+
+    // Perform checks
+    match proposal_status {
+        Status::Approved => {
+            if proposal_amount > host.self_balance() {
+                return Err(DAOError::InsufficientBalance.into());
+            }
+        }
+        Status::Collected => return Err(DAOError::AmountCollected.into()),
+        Status::Denied => return Err(DAOError::ProposalDenied.into()),
+        _ => return Err(DAOError::NotApproved.into()),
+    }
+
+    // Perform mutable operation
+    let state = host.state_mut();
+    for (id, p) in &mut state.proposals {
+        if *id == proposal_id {
+            // Perform the transfer
+            p.status = Status::Collected;
+            return Ok(host.invoke_transfer(&caller, proposal_amount)?);
         }
     }
+
     Ok(())
 }
