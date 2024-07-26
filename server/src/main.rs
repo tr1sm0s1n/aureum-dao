@@ -19,6 +19,7 @@ use concordium_rust_sdk::{
     v2::BlockIdentifier,
 };
 use tonic::transport::ClientTlsConfig;
+use tower_http::services::ServeDir;
 use tower_http::{
     cors::{Any, CorsLayer},
     trace::TraceLayer,
@@ -61,7 +62,7 @@ async fn main() -> anyhow::Result<()> {
     // run it
     let listener = tokio::net::TcpListener::bind("127.0.0.1:4800").await?;
 
-    tracing::debug!("Listening on {}", listener.local_addr()?);
+    tracing::debug!("Listening on http://{}", listener.local_addr()?);
     axum::serve(listener, app(state)).await?;
     Ok(())
 }
@@ -69,6 +70,7 @@ async fn main() -> anyhow::Result<()> {
 fn app(state: Server) -> Router {
     // build our application with multiple routes
     Router::new()
+        .nest_service("/", ServeDir::new("../dist"))
         .route("/hello", get(hello))
         .route("/statement", get(get_statement))
         .route("/challenge", get(get_challenge))
