@@ -6,9 +6,8 @@ use core::fmt::Debug;
 #[derive(Serialize, SchemaType)]
 pub struct DAOState {
     pub proposals: Vec<(u64, Proposal)>,
-    pub votes: Vec<(u64, AccountAddress)>, // (proposal_id, voter_address)
-    pub members: Vec<AccountAddress>,
-    pub admin: AccountAddress,
+    pub members: Vec<(AccountAddress, u64)>,
+    pub origin: AccountAddress,
 }
 
 #[derive(Debug, Clone, Serialize, SchemaType, PartialEq, Eq)]
@@ -16,8 +15,7 @@ pub struct Proposal {
     pub proposer: AccountAddress,
     pub description: String,
     pub amount: Amount,
-    pub votes_for: u64,
-    pub votes_against: u64,
+    pub votes: u64,
     pub status: Status,
 }
 
@@ -25,13 +23,7 @@ pub struct Proposal {
 pub enum Status {
     Active,
     Approved,
-    Denied,
     Collected,
-}
-
-#[derive(Clone, Serialize, SchemaType)]
-struct Member {
-    address: AccountAddress,
 }
 
 #[derive(Clone, Serialize, SchemaType, Debug, PartialEq, Eq)]
@@ -43,7 +35,7 @@ pub struct ProposalInput {
 #[derive(Debug, Serialize, SchemaType, PartialEq, Eq)]
 pub struct VoteInput {
     pub proposal_id: u64,
-    pub vote_for: bool,
+    pub votes: u64,
 }
 
 /// Your smart contract errors.
@@ -56,9 +48,7 @@ pub enum DAOError {
     Unauthorized,
     AlreadyAdded,
     ProposalNotFound,
-    AlreadyVoted,
     NotApproved,
-    ProposalDenied,
     InsufficientBalance,
     AmountCollected,
 }
@@ -72,24 +62,18 @@ pub enum DAOEvent {
     },
     Voted {
         proposal_id: u64,
-        votes_for: u64,
-        votes_against: u64,
-    },
-    MemberAdded {
-        address: AccountAddress,
+        voter: AccountAddress,
+        total_votes: u64,
     },
 }
 
 #[init(contract = "DAO")]
 fn dao_init(ctx: &InitContext, _state_builder: &mut StateBuilder) -> InitResult<DAOState> {
-    let mut members: Vec<AccountAddress> = vec![];
-    let admin = ctx.init_origin();
-    members.push(admin.clone());
+    let origin = ctx.init_origin();
     Ok(DAOState {
         proposals: vec![],
-        votes: vec![],
-        members,
-        admin,
+        members: vec![],
+        origin,
     })
 }
 
@@ -117,8 +101,7 @@ fn dao_create_proposal(
             proposer: ctx.invoker(),
             description: input.clone().description,
             amount: input.clone().amount,
-            votes_for: 0,
-            votes_against: 0,
+            votes: 0,
             status: Status::Active,
         },
     ));
@@ -147,43 +130,47 @@ fn dao_vote(
 ) -> ReceiveResult<()> {
     let input: VoteInput = ctx.parameter_cursor().get()?;
     let state = host.state_mut();
-    let sender = ctx.invoker();
+    let voter = ctx.invoker();
 
-    if state.members.iter().any(|addr| *addr != sender) {
+    if state.members.is_empty()
+        || state
+            .members
+            .iter()
+            .any(|m| m.0 != voter || m.1 == 0 || m.1 < input.votes)
+    {
         return Err(DAOError::Unauthorized.into());
     }
 
-    if state
-        .votes
-        .iter()
-        .any(|(id, addr)| *id == input.proposal_id && *addr == sender)
-    {
-        return Err(DAOError::AlreadyVoted.into());
+    for (a, p) in state.members.iter() {
+        if *a != voter {
+            return Err(DAOError::Unauthorized.into());
+        }
+        if *p == 0 || *p < input.votes {
+            return Err(DAOError::Unauthorized.into());
+        }
     }
 
     let proposal_data = state
         .proposals
         .get_mut(input.proposal_id as usize)
         .ok_or(DAOError::ProposalNotFound)?;
-    if input.vote_for {
-        proposal_data.1.votes_for += 1;
-    } else {
-        proposal_data.1.votes_against += 1;
-    }
-    state.votes.push((input.proposal_id, sender));
+
+    proposal_data.1.votes += input.votes;
 
     logger.log(&DAOEvent::Voted {
         proposal_id: input.proposal_id,
-        votes_for: proposal_data.1.votes_for,
-        votes_against: proposal_data.1.votes_against,
+        voter,
+        total_votes: proposal_data.1.votes,
     })?;
 
-    let total = state.members.len();
+    for (account, power) in state.members.iter_mut() {
+        if *account == voter {
+            *power -= input.votes;
+        }
+    }
 
-    if proposal_data.1.votes_for > (total / 2).try_into().unwrap() {
+    if proposal_data.1.votes >= proposal_data.1.amount.micro_ccd() {
         proposal_data.1.status = Status::Approved
-    } else if proposal_data.1.votes_against > (total / 2).try_into().unwrap() {
-        proposal_data.1.status = Status::Denied
     }
 
     Ok(())
@@ -205,50 +192,37 @@ fn dao_all_proposals(
 #[receive(
     contract = "DAO",
     name = "all_members",
-    return_value = "Vec<AccountAddress>",
+    return_value = "Vec<(AccountAddress,u64)>",
     error = "DAOError"
 )]
 fn dao_all_members(
     _ctx: &ReceiveContext,
     host: &Host<DAOState>,
-) -> ReceiveResult<Vec<AccountAddress>> {
+) -> ReceiveResult<Vec<(AccountAddress, u64)>> {
     Ok(host.state().members.clone())
 }
 
 /// Insert some CCD into DAO, allowed by anyone.
-#[receive(contract = "DAO", name = "insert", payable)]
-fn dao_insert(_ctx: &ReceiveContext, _host: &Host<DAOState>, _amount: Amount) -> ReceiveResult<()> {
-    Ok(())
-}
-
-#[receive(
-    contract = "DAO",
-    name = "add_member",
-    parameter = "Member",
-    mutable,
-    enable_logger
-)]
-fn dao_add_member(
+#[receive(contract = "DAO", name = "insert", mutable, payable)]
+fn dao_insert(
     ctx: &ReceiveContext,
     host: &mut Host<DAOState>,
-    logger: &mut Logger,
+    amount: Amount,
 ) -> ReceiveResult<()> {
-    let state = host.state_mut();
-    if ctx.invoker() != state.admin {
-        return Err(DAOError::Unauthorized.into());
+    let invoker = ctx.invoker();
+    let micro_ccd_amount = amount.micro_ccd();
+    let members = &mut host.state_mut().members;
+
+    // Check if the invoker already exists in the members vector.
+    for (account, power) in members.iter_mut() {
+        if *account == invoker {
+            *power += micro_ccd_amount;
+            return Ok(());
+        }
     }
-    let member: Member = ctx.parameter_cursor().get()?;
 
-    if !state.members.contains(&member.address) {
-        state.members.push(member.address);
-    } else {
-        return Err(DAOError::AlreadyAdded.into());
-    }
-
-    logger.log(&DAOEvent::MemberAdded {
-        address: member.address,
-    })?;
-
+    // If the invoker is not found, add a new entry.
+    members.push((invoker, micro_ccd_amount));
     Ok(())
 }
 
@@ -280,7 +254,6 @@ fn dao_withdraw(ctx: &ReceiveContext, host: &mut Host<DAOState>) -> ReceiveResul
             }
         }
         Status::Collected => return Err(DAOError::AmountCollected.into()),
-        Status::Denied => return Err(DAOError::ProposalDenied.into()),
         _ => return Err(DAOError::NotApproved.into()),
     }
 
