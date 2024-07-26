@@ -1,9 +1,9 @@
-import React from "react";
-import Hero from "./components/Hero/Hero";
-import AOS from "aos";
-import "aos/dist/aos.css";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import LandingPage from "./components/LandingPage/LandingPage";
+import React from 'react'
+import Hero from './components/Hero/Hero'
+import AOS from 'aos'
+import 'aos/dist/aos.css'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import LandingPage from './components/LandingPage/LandingPage'
 // import { ToastContainer } from "react-toastify";
 
 const App = () => {
@@ -11,11 +11,11 @@ const App = () => {
     AOS.init({
       offset: 100,
       duration: 700,
-      easing: "ease-in",
+      easing: 'ease-in',
       delay: 100,
-    });
-    AOS.refresh();
-  }, []);
+    })
+    AOS.refresh()
+  }, [])
 
   return (
     <div className="bg-white dark:bg-gray-900 dark:text-white duration-200 overflow-x-hidden">
@@ -27,7 +27,7 @@ const App = () => {
       </Router>
       {/* <ToastContainer /> */}
     </div>
-  );
-};
+  )
+}
 
-export default App;
+export default App

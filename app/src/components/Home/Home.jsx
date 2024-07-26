@@ -1,17 +1,17 @@
-import React, { useState } from "react";
-import CharityPng from "../../assets/charity.png";
-import Modal from "../Modal/Modal";
+import React, { useState } from 'react'
+import CharityPng from '../../assets/charity.png'
+import Modal from '../Modal/Modal'
 
 const Hero = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   const handleOpenModal = () => {
-    setIsModalOpen(true);
-  };
+    setIsModalOpen(true)
+  }
 
   const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
+    setIsModalOpen(false)
+  }
 
   return (
     <>
@@ -26,7 +26,7 @@ const Hero = () => {
                 className="text-5xl sm:text-4xl lg:text-5xl font-bold"
               >
                 Lorem Ipsum is simply dummy text of the printing and typesetting
-                industry.{" "}
+                industry.{' '}
               </h1>
               <div data-aos="fade-up" data-aos-delay="400">
                 <button
@@ -71,7 +71,7 @@ const Hero = () => {
 
       {isModalOpen && <Modal handleCloseModal={handleCloseModal} />}
     </>
-  );
-};
+  )
+}
 
-export default Hero;
+export default Hero

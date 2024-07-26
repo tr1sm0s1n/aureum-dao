@@ -1,32 +1,32 @@
-import React from "react";
-import Slider from "react-slick";
+import React from 'react'
+import Slider from 'react-slick'
 
 const TestimonialData = [
   {
     id: 1,
-    name: "Dilshad",
-    text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque reiciendis inventore iste ratione ex alias quis magni at optio",
-    img: "https://picsum.photos/101/101",
+    name: 'Dilshad',
+    text: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque reiciendis inventore iste ratione ex alias quis magni at optio',
+    img: 'https://picsum.photos/101/101',
   },
   {
     id: 2,
-    name: "Sabir ali",
-    text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque reiciendis inventore iste ratione ex alias quis magni at optio",
-    img: "https://picsum.photos/102/102",
+    name: 'Sabir ali',
+    text: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque reiciendis inventore iste ratione ex alias quis magni at optio',
+    img: 'https://picsum.photos/102/102',
   },
   {
     id: 3,
-    name: "Dipankar kumar",
-    text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque reiciendis inventore iste ratione ex alias quis magni at optio",
-    img: "https://picsum.photos/104/104",
+    name: 'Dipankar kumar',
+    text: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque reiciendis inventore iste ratione ex alias quis magni at optio',
+    img: 'https://picsum.photos/104/104',
   },
   {
     id: 5,
-    name: "Satya Narayan",
-    text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque reiciendis inventore iste ratione ex alias quis magni at optio",
-    img: "https://picsum.photos/103/103",
+    name: 'Satya Narayan',
+    text: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque reiciendis inventore iste ratione ex alias quis magni at optio',
+    img: 'https://picsum.photos/103/103',
   },
-];
+]
 
 const Testimonials = () => {
   var settings = {
@@ -37,7 +37,7 @@ const Testimonials = () => {
     slidesToScroll: 1,
     autoplay: true,
     autoplaySpeed: 2000,
-    cssEase: "linear",
+    cssEase: 'linear',
     pauseOnHover: true,
     pauseOnFocus: true,
     responsive: [
@@ -65,7 +65,7 @@ const Testimonials = () => {
         },
       },
     ],
-  };
+  }
 
   return (
     <div className="py-10 mb-10">
@@ -115,7 +115,7 @@ const Testimonials = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Testimonials;
+export default Testimonials

@@ -1,23 +1,23 @@
-import React from "react";
-import Logo from "../../assets/website/kba.png";
+import React from 'react'
+import Logo from '../../assets/website/kba.png'
 
 const Menu = [
   {
     id: 1,
-    name: "Home",
-    link: "/#",
+    name: 'Home',
+    link: '/#',
   },
   {
     id: 2,
-    name: "Services",
-    link: "/#services",
+    name: 'Services',
+    link: '/#services',
   },
   {
     id: 3,
-    name: "About",
-    link: "/#about",
+    name: 'About',
+    link: '/#about',
   },
-];
+]
 const Navbar = () => {
   return (
     <>
@@ -59,7 +59,7 @@ const Navbar = () => {
         </div>
       </div>
     </>
-  );
-};
+  )
+}
 
-export default Navbar;
+export default Navbar

@@ -1,48 +1,48 @@
-import React, { useState } from "react";
-import ConfusedFacePng from "../../assets/confused_face.png";
-import FaceWithPeekingEyePng from "../../assets/face_with_peeking_eye.png";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from 'react'
+import ConfusedFacePng from '../../assets/confused_face.png'
+import FaceWithPeekingEyePng from '../../assets/face_with_peeking_eye.png'
+import { useNavigate } from 'react-router-dom'
 import {
   getPastDate,
   MIN_DATE,
   Web3StatementBuilder,
-} from "@concordium/web-sdk";
-import { detectConcordiumProvider } from "@concordium/browser-wallet-api-helpers";
-import { toast, ToastContainer } from "react-toastify";
+} from '@concordium/web-sdk'
+import { detectConcordiumProvider } from '@concordium/browser-wallet-api-helpers'
+import { toast, ToastContainer } from 'react-toastify'
 
 const Hero = () => {
-  const [imageSrc, setImageSrc] = useState(ConfusedFacePng);
-  const [verificationFailed, setVerificationFailed] = useState(false);
-  const navigate = useNavigate();
+  const [imageSrc, setImageSrc] = useState(ConfusedFacePng)
+  const [verificationFailed, setVerificationFailed] = useState(false)
+  const navigate = useNavigate()
 
   const ageCheck = async () => {
-    const provider = await detectConcordiumProvider();
+    const provider = await detectConcordiumProvider()
     try {
-      await provider.requestAccounts();
+      await provider.requestAccounts()
 
       const statementBuilder =
         new Web3StatementBuilder().addForIdentityCredentials(
           [0, 1, 2, 3, 4, 5],
-          (b) => b.addRange("dob", MIN_DATE, getPastDate(18, 1)),
-        );
-      const statement = statementBuilder.getStatements();
+          (b) => b.addRange('dob', MIN_DATE, getPastDate(18, 1)),
+        )
+      const statement = statementBuilder.getStatements()
       const challenge =
-        "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB";
+        'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB'
 
       const verified = await provider.requestVerifiablePresentation(
         challenge,
         statement,
-      );
-      console.log("verified", verified);
+      )
+      console.log('verified', verified)
 
       if (verified) {
         // TODO: Verify the proof here if necessary
-        navigate("/welcome");
+        navigate('/welcome')
       } else {
-        setVerificationFailed(true);
+        setVerificationFailed(true)
       }
     } catch (error) {
-      console.error(error);
+      console.error(error)
       // toast.error("Please Connect", {
       //   position: "top-right",
       //   autoClose: 3000,
@@ -51,17 +51,17 @@ const Hero = () => {
       //   pauseOnHover: true,
       //   draggable: true,
       // });
-      alert("please connect");
+      alert('please connect')
     }
-  };
+  }
 
   const handleVerifyClick = () => {
-    ageCheck();
-  };
+    ageCheck()
+  }
 
   const handleCloseClick = () => {
-    setVerificationFailed(false);
-  };
+    setVerificationFailed(false)
+  }
 
   return (
     <div className="h-screen bg-indigo-400 flex justify-center items-center text-white">
@@ -109,7 +109,7 @@ const Hero = () => {
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Hero;
+export default Hero

@@ -1,8 +1,8 @@
-import React from "react";
+import React from 'react'
 
-import Navbar from "../Navbar/Navbar";
-import Home from "../Home/Home";
-import Testimonials from "../Testimonials/Testimonials";
+import Navbar from '../Navbar/Navbar'
+import Home from '../Home/Home'
+import Testimonials from '../Testimonials/Testimonials'
 
 const LandingPage = () => {
   return (
@@ -11,7 +11,7 @@ const LandingPage = () => {
       <Home />
       <Testimonials />
     </>
-  );
-};
+  )
+}
 
-export default LandingPage;
+export default LandingPage
