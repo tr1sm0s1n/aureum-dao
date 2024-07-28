@@ -16,6 +16,7 @@ pub struct Proposal {
     pub description: String,
     pub amount: Amount,
     pub votes: u64,
+    pub voters: Vec<(AccountAddress, u64)>,
     pub status: Status,
 }
 
@@ -102,6 +103,7 @@ fn dao_create_proposal(
             description: input.clone().description,
             amount: input.clone().amount,
             votes: 0,
+            voters: vec![],
             status: Status::Active,
         },
     ));
@@ -141,21 +143,19 @@ fn dao_vote(
         return Err(DAOError::Unauthorized.into());
     }
 
-    for (a, p) in state.members.iter() {
-        if *a != voter {
-            return Err(DAOError::Unauthorized.into());
-        }
-        if *p == 0 || *p < input.votes {
-            return Err(DAOError::Unauthorized.into());
-        }
-    }
-
     let proposal_data = state
         .proposals
         .get_mut(input.proposal_id as usize)
         .ok_or(DAOError::ProposalNotFound)?;
 
     proposal_data.1.votes += input.votes;
+    for (v, votes) in proposal_data.1.voters.iter_mut() {
+        if *v == voter {
+            *votes += input.votes;
+        }
+    }
+
+    proposal_data.1.voters.push((voter, input.votes));
 
     logger.log(&DAOEvent::Voted {
         proposal_id: input.proposal_id,
