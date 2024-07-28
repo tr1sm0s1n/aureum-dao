@@ -47,7 +47,7 @@ pub enum DAOError {
     ParseParams,
     /// Your error
     Unauthorized,
-    AlreadyAdded,
+    AlreadyApproved,
     ProposalNotFound,
     NotApproved,
     InsufficientBalance,
@@ -62,6 +62,11 @@ pub enum DAOEvent {
         amount: Amount,
     },
     Voted {
+        proposal_id: u64,
+        voter: AccountAddress,
+        total_votes: u64,
+    },
+    Renounced {
         proposal_id: u64,
         voter: AccountAddress,
         total_votes: u64,
@@ -171,6 +176,60 @@ fn dao_vote(
 
     if proposal_data.1.votes >= proposal_data.1.amount.micro_ccd() {
         proposal_data.1.status = Status::Approved
+    }
+
+    Ok(())
+}
+
+#[receive(
+    contract = "DAO",
+    name = "renounce",
+    parameter = "VoteInput",
+    error = "DAOError",
+    mutable,
+    enable_logger
+)]
+fn dao_renounce(
+    ctx: &ReceiveContext,
+    host: &mut Host<DAOState>,
+    logger: &mut Logger,
+) -> ReceiveResult<()> {
+    let input: VoteInput = ctx.parameter_cursor().get()?;
+    let state = host.state_mut();
+    let voter = ctx.invoker();
+
+    if state.members.is_empty() || state.members.iter().any(|m| m.0 != voter) {
+        return Err(DAOError::Unauthorized.into());
+    }
+
+    let proposal_data = state
+        .proposals
+        .get_mut(input.proposal_id as usize)
+        .ok_or(DAOError::ProposalNotFound)?;
+
+    if proposal_data.1.status == Status::Approved || proposal_data.1.status == Status::Collected {
+        return Err(DAOError::AlreadyApproved.into());
+    }
+
+    for (v, votes) in proposal_data.1.voters.iter_mut() {
+        if *v == voter {
+            *votes -= input.votes;
+            proposal_data.1.votes -= input.votes;
+        } else {
+            return Err(DAOError::Unauthorized.into());
+        }
+    }
+
+    logger.log(&DAOEvent::Renounced {
+        proposal_id: input.proposal_id,
+        voter,
+        total_votes: proposal_data.1.votes,
+    })?;
+
+    for (account, power) in state.members.iter_mut() {
+        if *account == voter {
+            *power += input.votes;
+        }
     }
 
     Ok(())
