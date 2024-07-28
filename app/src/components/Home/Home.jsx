@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import CharityPng from '../../assets/charity.png'
 import Modal from '../Modal/Modal'
 
-const Hero = () => {
+const Home = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const handleOpenModal = () => {
@@ -74,4 +74,4 @@ const Hero = () => {
   )
 }
 
-export default Hero
+export default Home

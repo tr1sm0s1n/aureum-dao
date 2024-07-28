@@ -1,6 +1,6 @@
 import React from 'react'
 import './modal.css' // Import the CSS file for animations
-import { IoMdClose } from 'react-icons/io'
+// import { IoMdClose } from 'react-icons/io'
 
 const Modal = ({ handleCloseModal }) => {
   return (
