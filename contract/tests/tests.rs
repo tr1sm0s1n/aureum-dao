@@ -838,3 +838,171 @@ fn test_approved_withdraw() {
         .expect("Balance of Owner");
     assert_ne!(bal, ACC_INITIAL_BALANCE)
 }
+
+#[test]
+fn test_renounce() {
+    let (mut chain, init) = setup_chain_and_contract();
+
+    let insert_amount = Amount::from_ccd(10);
+
+    // Insert 10 CCD.
+    chain
+        .contract_update(
+            SIGNER,
+            ACC_ADDR_OWNER,
+            Address::Account(ACC_ADDR_OWNER),
+            Energy::from(10_000),
+            UpdateContractPayload {
+                amount: insert_amount,
+                address: init.contract_address,
+                receive_name: OwnedReceiveName::new_unchecked("DAO.insert".to_string()),
+                message: OwnedParameter::empty(),
+            },
+        )
+        .expect("Update succeeds with new insert");
+
+    let input = ProposalInput {
+        description: "Kerala Flood Relief".to_string(),
+        amount: Amount { micro_ccd: 100_000 },
+    };
+
+    chain
+        .contract_update(
+            SIGNER,
+            ACC_ADDR_OWNER,
+            Address::Account(ACC_ADDR_OWNER),
+            Energy::from(10_000),
+            UpdateContractPayload {
+                address: init.contract_address,
+                amount: Amount::zero(),
+                receive_name: OwnedReceiveName::new_unchecked("DAO.create_proposal".to_string()),
+                message: OwnedParameter::from_serial(&input).expect("Create proposal"),
+            },
+        )
+        .expect("Update succeeds with new proposal");
+
+    let v = VoteInput {
+        proposal_id: 0,
+        votes: 100,
+    };
+
+    chain
+        .contract_update(
+            SIGNER,
+            ACC_ADDR_OWNER,
+            Address::Account(ACC_ADDR_OWNER),
+            Energy::from(10_000),
+            UpdateContractPayload {
+                address: init.contract_address,
+                amount: Amount::zero(),
+                receive_name: OwnedReceiveName::new_unchecked("DAO.vote".to_string()),
+                message: OwnedParameter::from_serial(&v).expect("Vote proposal"),
+            },
+        )
+        .expect("Update succeeds with new vote");
+
+    let update = chain
+        .contract_update(
+            SIGNER,
+            ACC_ADDR_OWNER,
+            Address::Account(ACC_ADDR_OWNER),
+            Energy::from(10_000),
+            UpdateContractPayload {
+                address: init.contract_address,
+                amount: Amount::zero(),
+                receive_name: OwnedReceiveName::new_unchecked("DAO.renounce".to_string()),
+                message: OwnedParameter::from_serial(&v).expect("Renounce proposal"),
+            },
+        )
+        .expect("Update succeeds with new renounce");
+
+    check_event(
+        &update,
+        DAOEvent::Renounced {
+            proposal_id: 0,
+            voter: ACC_ADDR_OWNER,
+            total_votes: 0,
+        },
+    );
+}
+
+#[test]
+fn test_invalid_renounce() {
+    let (mut chain, init) = setup_chain_and_contract();
+
+    let insert_amount = Amount::from_ccd(10);
+
+    // Insert 10 CCD.
+    chain
+        .contract_update(
+            SIGNER,
+            ACC_ADDR_OWNER,
+            Address::Account(ACC_ADDR_OWNER),
+            Energy::from(10_000),
+            UpdateContractPayload {
+                amount: insert_amount,
+                address: init.contract_address,
+                receive_name: OwnedReceiveName::new_unchecked("DAO.insert".to_string()),
+                message: OwnedParameter::empty(),
+            },
+        )
+        .expect("Update succeeds with new insert");
+
+    let input = ProposalInput {
+        description: "Kerala Flood Relief".to_string(),
+        amount: Amount { micro_ccd: 1000 },
+    };
+
+    chain
+        .contract_update(
+            SIGNER,
+            ACC_ADDR_OWNER,
+            Address::Account(ACC_ADDR_OWNER),
+            Energy::from(10_000),
+            UpdateContractPayload {
+                address: init.contract_address,
+                amount: Amount::zero(),
+                receive_name: OwnedReceiveName::new_unchecked("DAO.create_proposal".to_string()),
+                message: OwnedParameter::from_serial(&input).expect("Create proposal"),
+            },
+        )
+        .expect("Update succeeds with new proposal");
+
+    let v = VoteInput {
+        proposal_id: 0,
+        votes: 1000,
+    };
+
+    chain
+        .contract_update(
+            SIGNER,
+            ACC_ADDR_OWNER,
+            Address::Account(ACC_ADDR_OWNER),
+            Energy::from(10_000),
+            UpdateContractPayload {
+                address: init.contract_address,
+                amount: Amount::zero(),
+                receive_name: OwnedReceiveName::new_unchecked("DAO.vote".to_string()),
+                message: OwnedParameter::from_serial(&v).expect("Vote proposal"),
+            },
+        )
+        .expect("Update succeeds with new vote");
+
+    let update = chain
+        .contract_update(
+            SIGNER,
+            ACC_ADDR_OWNER,
+            Address::Account(ACC_ADDR_OWNER),
+            Energy::from(10_000),
+            UpdateContractPayload {
+                address: init.contract_address,
+                amount: Amount::zero(),
+                receive_name: OwnedReceiveName::new_unchecked("DAO.renounce".to_string()),
+                message: OwnedParameter::from_serial(&v).expect("Renounce proposal"),
+            },
+        )
+        .expect_err("Update succeeds with new renounce");
+
+    let rv: DAOError = update.parse_return_value().expect("Deserialize Error");
+    assert_eq!(rv, DAOError::AlreadyApproved);
+}
