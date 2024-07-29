@@ -16,7 +16,7 @@ pub struct Proposal {
     pub description: String,
     pub amount: Amount,
     pub votes: u64,
-    pub voters: Vec<(AccountAddress, u64)>,
+    pub contributers: Vec<(AccountAddress, u64)>,
     pub status: Status,
 }
 
@@ -108,7 +108,7 @@ fn dao_create_proposal(
             description: input.clone().description,
             amount: input.clone().amount,
             votes: 0,
-            voters: vec![],
+            contributers: vec![],
             status: Status::Active,
         },
     ));
@@ -154,13 +154,13 @@ fn dao_vote(
         .ok_or(DAOError::ProposalNotFound)?;
 
     proposal_data.1.votes += input.votes;
-    for (v, votes) in proposal_data.1.voters.iter_mut() {
+    for (v, votes) in proposal_data.1.contributers.iter_mut() {
         if *v == voter {
             *votes += input.votes;
         }
     }
 
-    proposal_data.1.voters.push((voter, input.votes));
+    proposal_data.1.contributers.push((voter, input.votes));
 
     logger.log(&DAOEvent::Voted {
         proposal_id: input.proposal_id,
@@ -211,7 +211,7 @@ fn dao_renounce(
         return Err(DAOError::AlreadyApproved.into());
     }
 
-    for (v, votes) in proposal_data.1.voters.iter_mut() {
+    for (v, votes) in proposal_data.1.contributers.iter_mut() {
         if *v == voter {
             *votes -= input.votes;
             proposal_data.1.votes -= input.votes;
