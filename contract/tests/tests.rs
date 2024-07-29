@@ -183,6 +183,7 @@ fn test_all_proposals() {
                 description: input.description.clone(),
                 amount: input.amount,
                 votes: 0,
+                contributers: vec![],
                 status: Status::Active,
             },
         ),
@@ -193,6 +194,7 @@ fn test_all_proposals() {
                 description: input.description,
                 amount: input.amount,
                 votes: 0,
+                contributers: vec![],
                 status: Status::Active,
             },
         ),
@@ -248,7 +250,7 @@ fn test_authorized_vote() {
         votes: 100,
     };
 
-    chain
+    let update = chain
         .contract_update(
             SIGNER,
             ACC_ADDR_OWNER,
@@ -262,6 +264,15 @@ fn test_authorized_vote() {
             },
         )
         .expect("Update succeeds with new vote");
+
+    check_event(
+        &update,
+        DAOEvent::Voted {
+            proposal_id: 0,
+            voter: ACC_ADDR_OWNER,
+            total_votes: 100,
+        },
+    );
 
     let invoke = chain
         .contract_invoke(
@@ -286,6 +297,7 @@ fn test_authorized_vote() {
             description: input.description.clone(),
             amount: input.amount,
             votes: 100,
+            contributers: vec![(ACC_ADDR_OWNER, 100)],
             status: Status::Active,
         },
     )];
@@ -814,6 +826,7 @@ fn test_approved_withdraw() {
             description: input.description.clone(),
             amount: input.amount,
             votes: 100_000,
+            contributers: vec![(ACC_ADDR_OWNER, input.amount.micro_ccd())],
             status: Status::Collected,
         },
     )];
