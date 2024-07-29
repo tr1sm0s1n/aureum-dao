@@ -154,13 +154,18 @@ fn dao_vote(
         .ok_or(DAOError::ProposalNotFound)?;
 
     proposal_data.1.votes += input.votes;
+    let mut exists = false;
     for (v, votes) in proposal_data.1.contributers.iter_mut() {
         if *v == voter {
             *votes += input.votes;
+            exists = true;
+            break;
         }
     }
 
-    proposal_data.1.contributers.push((voter, input.votes));
+    if !exists {
+        proposal_data.1.contributers.push((voter, input.votes));
+    }
 
     logger.log(&DAOEvent::Voted {
         proposal_id: input.proposal_id,
