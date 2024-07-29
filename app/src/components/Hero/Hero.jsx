@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useEffect } from 'react'
 import ConfusedFacePng from '../../assets/confused_face.png'
 import FaceWithPeekingEyePng from '../../assets/face_with_peeking_eye.png'
@@ -19,7 +18,7 @@ const Hero = () => {
   const handleConnect = useCallback(
     () =>
       detectConcordiumProvider()
-        .then((provider) => provider.connect())
+        .then((provider) => provider.requestAccounts())
         .then(setAccount),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
@@ -44,7 +43,7 @@ const Hero = () => {
     // console.log("token",newAuthToken)
 
     setAuthToken(newAuthToken)
-    navigate('/welcome')
+    navigate('/dashboard')
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [account])
 
@@ -79,7 +78,7 @@ const Hero = () => {
           <div className="flex flex-col items-center text-center">
             <h2 className="text-xl font-bold text-red-600">
               Age verification was not completed. You are not allowed to access
-              the beer store!
+              the DAO DApp!
             </h2>
 
             <button
@@ -123,7 +122,7 @@ const Hero = () => {
                   {!authToken && (
                     <>
                       <h2 className="mt-10 text-center text-xl font-bold text-indigo-600">
-                        Click to verify your age
+                        Click to verify your age & nationality
                       </h2>
                       <button
                         className="flex flex-col items-center mt-10 mx-auto md:w-1/2 rounded-md bg-indigo-400 px-3 py-2.5 text-lg text-center font-medium tracking-wide text-white shadow-sm hover:bg-indigo-600"

@@ -9,10 +9,10 @@ importers:
     dependencies:
       '@concordium/browser-wallet-api-helpers':
         specifier: ^3.0.1
-        version: 3.0.1(@concordium/web-sdk@7.4.0)
+        version: 3.0.1(@concordium/web-sdk@7.5.0(@protobuf-ts/runtime-rpc@2.9.4))
       '@concordium/web-sdk':
-        specifier: ^7.4.0
-        version: 7.4.0
+        specifier: ^7.5.0
+        version: 7.5.0(@protobuf-ts/runtime-rpc@2.9.4)
       aos:
         specifier: ^2.3.4
         version: 2.3.4
@@ -23,8 +23,8 @@ importers:
         specifier: ^18.2.0
         version: 18.3.1(react@18.3.1)
       react-icons:
-        specifier: ^4.12.0
-        version: 4.12.0(react@18.3.1)
+        specifier: ^4.12.@concordium/browser-wallet-api-helpers0
+        version: link:^4.12.@concordium/browser-wallet-api-helpers0
       react-router-dom:
         specifier: ^6.24.1
         version: 6.24.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -283,12 +283,14 @@ packages:
       }
     engines: { node: '>=16' }
 
-  '@concordium/web-sdk@7.4.0':
+  '@concordium/web-sdk@7.5.0':
     resolution:
       {
-        integrity: sha512-3F/aWp1MMIqXCELzosnsd8KkLBxdi2SZQNGlshy26qw+w71BlRwfUKwOQS1IJSZae2hJW6Zu+PSkfgyPXLUwjg==,
+        integrity: sha512-u7hlUWc45YZmufEg0I3MSeO1SSYpZMAPai3UNj8yDwGOQqVZ+xUK2ovKmgNdMOUWwikujvz6LNbZkdwihDDYNw==,
       }
     engines: { node: '>=16' }
+    peerDependencies:
+      '@protobuf-ts/runtime-rpc': ^2.8.2
 
   '@esbuild/aix-ppc64@0.21.5':
     resolution:
@@ -2691,14 +2693,6 @@ packages:
     peerDependencies:
       react: ^18.3.1
 
-  react-icons@4.12.0:
-    resolution:
-      {
-        integrity: sha512-IBaDuHiShdZqmfc/TwHu6+d6k2ltNCf3AszxNmjJc1KUfXdEeRJOKyNvLmAHaarhzGmTSVygNdyu8/opXv2gaw==,
-      }
-    peerDependencies:
-      react: '*'
-
   react-is@16.13.1:
     resolution:
       {
@@ -3457,14 +3451,14 @@ snapshots:
       '@babel/helper-validator-identifier': 7.24.7
       to-fast-properties: 2.0.0
 
-  '@concordium/browser-wallet-api-helpers@3.0.1(@concordium/web-sdk@7.4.0)':
+  '@concordium/browser-wallet-api-helpers@3.0.1(@concordium/web-sdk@7.5.0(@protobuf-ts/runtime-rpc@2.9.4))':
     dependencies:
-      '@concordium/web-sdk': 7.4.0
+      '@concordium/web-sdk': 7.5.0(@protobuf-ts/runtime-rpc@2.9.4)
       '@protobuf-ts/runtime-rpc': 2.9.4
 
   '@concordium/rust-bindings@3.2.0': {}
 
-  '@concordium/web-sdk@7.4.0':
+  '@concordium/web-sdk@7.5.0(@protobuf-ts/runtime-rpc@2.9.4)':
     dependencies:
       '@concordium/rust-bindings': 3.2.0
       '@grpc/grpc-js': 1.10.10
@@ -4888,10 +4882,6 @@ snapshots:
       loose-envify: 1.4.0
       react: 18.3.1
       scheduler: 0.23.2
-
-  react-icons@4.12.0(react@18.3.1):
-    dependencies:
-      react: 18.3.1
 
   react-is@16.13.1: {}
 
