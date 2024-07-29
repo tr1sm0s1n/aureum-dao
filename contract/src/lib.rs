@@ -197,6 +197,7 @@ fn dao_renounce(
     let input: VoteInput = ctx.parameter_cursor().get()?;
     let state = host.state_mut();
     let voter = ctx.invoker();
+    let mut renounce = 0;
 
     if state.members.is_empty() || state.members.iter().any(|m| m.0 != voter) {
         return Err(DAOError::Unauthorized.into());
@@ -213,8 +214,15 @@ fn dao_renounce(
 
     for (v, votes) in proposal_data.1.contributers.iter_mut() {
         if *v == voter {
-            *votes -= input.votes;
-            proposal_data.1.votes -= input.votes;
+            if *votes > input.votes {
+                renounce = input.votes;
+                *votes -= renounce;
+                proposal_data.1.votes -= renounce;
+            } else {
+                renounce = *votes;
+                *votes -= renounce;
+                proposal_data.1.votes -= renounce;
+            }
         } else {
             return Err(DAOError::Unauthorized.into());
         }
@@ -228,7 +236,7 @@ fn dao_renounce(
 
     for (account, power) in state.members.iter_mut() {
         if *account == voter {
-            *power += input.votes;
+            *power += renounce;
         }
     }
 
