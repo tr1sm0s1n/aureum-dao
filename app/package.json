@@ -13,6 +13,7 @@
     "@concordium/browser-wallet-api-helpers": "^3.0.1",
     "@concordium/web-sdk": "^7.4.0",
     "aos": "^2.3.4",
+    "framer-motion": "^11.3.19",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.12.0",

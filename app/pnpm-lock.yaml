@@ -14,6 +14,9 @@ dependencies:
   aos:
     specifier: ^2.3.4
     version: 2.3.4
+  framer-motion:
+    specifier: ^11.3.19
+    version: 11.3.19(react-dom@18.3.1)(react@18.3.1)
   react:
     specifier: ^18.2.0
     version: 18.3.1
@@ -2568,6 +2571,28 @@ packages:
       }
     dev: true
 
+  /framer-motion@11.3.19(react-dom@18.3.1)(react@18.3.1):
+    resolution:
+      {
+        integrity: sha512-+luuQdx4AsamyMcvzW7jUAJYIKvQs1KE7oHvKkW3eNzmo0S+3PSDWjBuQkuIP9WyneGnKGMLUSuHs8OP7jKpQg==,
+      }
+    peerDependencies:
+      "@emotion/is-prop-valid": "*"
+      react: ^18.0.0
+      react-dom: ^18.0.0
+    peerDependenciesMeta:
+      "@emotion/is-prop-valid":
+        optional: true
+      react:
+        optional: true
+      react-dom:
+        optional: true
+    dependencies:
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      tslib: 2.6.3
+    dev: false
+
   /fs.realpath@1.0.0:
     resolution:
       {
@@ -4561,6 +4586,13 @@ packages:
         integrity: sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==,
       }
     dev: true
+
+  /tslib@2.6.3:
+    resolution:
+      {
+        integrity: sha512-xNvxJEOUiWPGhUuUdQgAJPKOOJfGnIyKySOc09XkKsgdUV/3E2zvwZYdejjmRgPCgcym1juLH3226yA7sEFJKQ==,
+      }
+    dev: false
 
   /type-check@0.4.0:
     resolution:

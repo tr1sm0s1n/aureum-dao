@@ -1,18 +1,7 @@
-import React, { useState } from "react";
-import CharityPng from "../../assets/charity.png";
-import Modal from "../Modal/Modal";
+import React from "react";
+import CharityPng from "../../assets/sideImage.png";
 
 const Hero = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const handleOpenModal = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
-
   return (
     <>
       <div className="min-h-[550px] sm:min-h-[600px] bg-brandDark flex justify-center items-center text-white">
@@ -28,16 +17,6 @@ const Hero = () => {
                 Lorem Ipsum is simply dummy text of the printing and typesetting
                 industry.{" "}
               </h1>
-              <div data-aos="fade-up" data-aos-delay="400">
-                <button
-                  onClick={handleOpenModal}
-                  data-modal-target="default-modal"
-                  data-modal-toggle="default-modal"
-                  className="bg-gradient-to-r from-primary to-secondary border-2 border-primary hover:scale-105 duration-200 text-white py-2 px-4 rounded-full"
-                >
-                  Fill the Form
-                </button>
-              </div>
             </div>
             {/* Image section */}
             <div
@@ -68,8 +47,6 @@ const Hero = () => {
           </div>
         </div>
       </div>
-
-      {isModalOpen && <Modal handleCloseModal={handleCloseModal} />}
     </>
   );
 };

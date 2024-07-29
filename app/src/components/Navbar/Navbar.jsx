@@ -9,12 +9,12 @@ const Menu = [
   },
   {
     id: 2,
-    name: "Services",
+    name: "Form",
     link: "/#services",
   },
   {
     id: 3,
-    name: "About",
+    name: "Proposals",
     link: "/#about",
   },
 ];
@@ -30,8 +30,7 @@ const Navbar = () => {
                 href="#"
                 className="font-bold text-2xl sm:text-3xl flex justify-center items-center gap-2 tracking-wider "
               >
-                <img src={Logo} alt="Logo" className="w-14" />
-                Kerala Blockchain Academy
+                Concordium-Dao-Dapp
               </a>
             </div>
 
