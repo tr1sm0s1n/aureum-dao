@@ -9,6 +9,7 @@ use std::{
     sync::{Arc, Mutex},
 };
 
+use axum::response::Redirect;
 use axum::routing::post;
 use axum::{routing::get, Router};
 use concordium_rust_sdk::{
@@ -71,6 +72,7 @@ fn app(state: Server) -> Router {
     // build our application with multiple routes
     Router::new()
         .nest_service("/", ServeDir::new("../dist"))
+        .route("/dashboard", get(|| async { Redirect::permanent("/") }))
         .route("/hello", get(hello))
         .route("/statement", get(get_statement))
         .route("/challenge", get(get_challenge))
