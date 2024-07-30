@@ -2,14 +2,16 @@ import React from 'react'
 
 import Navbar from '../Navbar/Navbar'
 import Home from '../Home/Home'
-import Testimonials from '../Testimonials/Testimonials'
+import FormPage from '../FormPage/FormPage'
+import Proposals from '../Proposals/Proposals'
 
 const LandingPage = () => {
   return (
     <>
       <Navbar />
       <Home />
-      <Testimonials />
+      <FormPage />
+      <Proposals />
     </>
   )
 }
