@@ -30,7 +30,7 @@ const Navbar = () => {
                 href="#"
                 className="font-bold text-2xl sm:text-3xl flex justify-center items-center gap-2 tracking-wider "
               >
-                Concordium-Dao-Dapp
+                AUREUM - Concordium DAO DApp
               </a>
             </div>
 

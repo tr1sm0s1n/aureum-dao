@@ -77,8 +77,8 @@ const Hero = () => {
         {verificationFailed ? (
           <div className="flex flex-col items-center text-center">
             <h2 className="text-xl font-bold text-red-600">
-              Age verification was not completed. You are not allowed to access
-              the DAO DApp!
+              Verification was not completed. You are not allowed to access the
+              DAO DApp!
             </h2>
 
             <button
