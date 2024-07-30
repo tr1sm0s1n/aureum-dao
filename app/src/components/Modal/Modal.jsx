@@ -1,6 +1,6 @@
-import React from "react";
-import "./modal.css"; // Import the CSS file for animations
-import { IoMdClose } from "react-icons/io";
+import React from 'react'
+import './modal.css' // Import the CSS file for animations
+// import { IoMdClose } from 'react-icons/io'
 
 const Modal = ({ handleCloseModal }) => {
   return (
@@ -226,7 +226,7 @@ const Modal = ({ handleCloseModal }) => {
         </form>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Modal;
+export default Modal

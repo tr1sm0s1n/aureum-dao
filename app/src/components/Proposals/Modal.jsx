@@ -1,17 +1,17 @@
-import React from "react";
-import { motion } from "framer-motion";
-import { MdClose } from "react-icons/md";
+import React from 'react'
+import { motion } from 'framer-motion'
+import { MdClose } from 'react-icons/md'
 
 const Modal = ({ showModal, setShowModal, data }) => {
   const modalVariants = {
     hidden: {
       opacity: 0,
-      y: "-100%",
+      y: '-100%',
       scale: 1.5,
     },
     visible: {
       opacity: 1,
-      y: "0",
+      y: '0',
       scale: 1,
       transition: {
         duration: 0.3,
@@ -19,19 +19,19 @@ const Modal = ({ showModal, setShowModal, data }) => {
     },
     exit: {
       opacity: 0,
-      y: "-100%",
+      y: '-100%',
       scale: 1.5,
       transition: {
         duration: 0.3,
       },
     },
-  };
+  }
 
   const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget) {
-      setShowModal(false);
+      setShowModal(false)
     }
-  };
+  }
 
   return (
     <>
@@ -72,7 +72,7 @@ const Modal = ({ showModal, setShowModal, data }) => {
         </div>
       ) : null}
     </>
-  );
-};
+  )
+}
 
-export default Modal;
+export default Modal

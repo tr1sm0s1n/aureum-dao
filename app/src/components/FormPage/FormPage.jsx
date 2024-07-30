@@ -1,82 +1,82 @@
-import React, { useState } from "react";
-import BannerImg from "../../assets/form.png";
-import { MdAttachMoney } from "react-icons/md";
-import { ImParagraphCenter } from "react-icons/im";
-import BgImg from "../../assets/website/bg.jpg";
+import React, { useState } from 'react'
+import BannerImg from '../../assets/form.png'
+import { MdAttachMoney } from 'react-icons/md'
+import { ImParagraphCenter } from 'react-icons/im'
+import BgImg from '../../assets/website/bg.jpg'
 
 const bgImage = {
   backgroundImage: `url(${BgImg})`,
-  backgroundColor: "#6366FF",
-  backgroundPosition: "center",
-  backgroundRepeat: "no-repeat",
-  backgroundSize: "cover",
-  height: "100%",
-  width: "100%",
-};
+  backgroundColor: '#6366FF',
+  backgroundPosition: 'center',
+  backgroundRepeat: 'no-repeat',
+  backgroundSize: 'cover',
+  height: '100%',
+  width: '100%',
+}
 
 const FormPage = () => {
-  const [activeTab, setActiveTab] = useState("form1");
+  const [activeTab, setActiveTab] = useState('form1')
   const [form1Values, setForm1Values] = useState({
-    amount: "",
-    description: "",
-  });
-  const [form2Values, setForm2Values] = useState({ amount: "" });
+    amount: '',
+    description: '',
+  })
+  const [form2Values, setForm2Values] = useState({ amount: '' })
   const [form1Errors, setForm1Errors] = useState({
-    amount: "",
-    description: "",
-  });
-  const [form2Errors, setForm2Errors] = useState({ amount: "" });
+    amount: '',
+    description: '',
+  })
+  const [form2Errors, setForm2Errors] = useState({ amount: '' })
 
   const handleForm1Change = (e) => {
-    const { name, value } = e.target;
-    setForm1Values({ ...form1Values, [name]: value });
-  };
+    const { name, value } = e.target
+    setForm1Values({ ...form1Values, [name]: value })
+  }
 
   const handleForm2Change = (e) => {
-    const { name, value } = e.target;
-    setForm2Values({ ...form2Values, [name]: value });
-  };
+    const { name, value } = e.target
+    setForm2Values({ ...form2Values, [name]: value })
+  }
 
   const validateForm1 = () => {
-    const errors = { amount: "", description: "" };
+    const errors = { amount: '', description: '' }
     if (!form1Values.amount) {
-      errors.amount = "Amount is required";
+      errors.amount = 'Amount is required'
     } else if (isNaN(form1Values.amount)) {
-      errors.amount = "Amount must be a number";
+      errors.amount = 'Amount must be a number'
     }
     if (!form1Values.description) {
-      errors.description = "Description is required";
+      errors.description = 'Description is required'
     }
-    setForm1Errors(errors);
-    return Object.values(errors).every((error) => !error);
-  };
+    setForm1Errors(errors)
+    return Object.values(errors).every((error) => !error)
+  }
 
   const validateForm2 = () => {
-    const errors = { amount: "" };
+    const errors = { amount: '' }
     if (!form2Values.amount) {
-      errors.amount = "Amount is required";
+      errors.amount = 'Amount is required'
     } else if (isNaN(form2Values.amount)) {
-      errors.amount = "Amount must be a number";
+      errors.amount = 'Amount must be a number'
     }
-    setForm2Errors(errors);
-    return Object.values(errors).every((error) => !error);
-  };
+    setForm2Errors(errors)
+    return Object.values(errors).every((error) => !error)
+  }
 
   const handleForm1Submit = (e) => {
-    e.preventDefault();
+    e.preventDefault()
     if (validateForm1()) {
       // Handle form submission (e.g., send data to server)
-      console.log("Form 1 submitted", form1Values);
+      console.log('Form 1 submitted', form1Values)
     }
-  };
+  }
 
   const handleForm2Submit = (e) => {
-    e.preventDefault();
+    e.preventDefault()
     if (validateForm2()) {
       // Handle form submission (e.g., send data to server)
-      console.log("Form 2 submitted", form2Values);
+      console.log('Form 2 submitted', form2Values)
     }
-  };
+  }
 
   return (
     <>
@@ -113,8 +113,8 @@ const FormPage = () => {
                   >
                     <li className="mr-2" role="presentation">
                       <button
-                        className={`inline-block py-4 px-4 text-md font-medium text-center border-b-2 ${activeTab === "form1" ? "text-gray-600 border-gray-300" : "text-gray-500 border-transparent hover:text-gray-600 hover:border-gray-300"}`}
-                        onClick={() => setActiveTab("form1")}
+                        className={`inline-block py-4 px-4 text-md font-medium text-center border-b-2 ${activeTab === 'form1' ? 'text-gray-600 border-gray-300' : 'text-gray-500 border-transparent hover:text-gray-600 hover:border-gray-300'}`}
+                        onClick={() => setActiveTab('form1')}
                         role="tab"
                       >
                         Form 1
@@ -122,8 +122,8 @@ const FormPage = () => {
                     </li>
                     <li className="mr-2" role="presentation">
                       <button
-                        className={`inline-block py-4 px-4 text-md font-medium text-center border-b-2 ${activeTab === "form2" ? "text-gray-600 border-gray-300" : "text-gray-500 border-transparent hover:text-gray-600 hover:border-gray-300"}`}
-                        onClick={() => setActiveTab("form2")}
+                        className={`inline-block py-4 px-4 text-md font-medium text-center border-b-2 ${activeTab === 'form2' ? 'text-gray-600 border-gray-300' : 'text-gray-500 border-transparent hover:text-gray-600 hover:border-gray-300'}`}
+                        onClick={() => setActiveTab('form2')}
                         role="tab"
                       >
                         Form 2
@@ -131,7 +131,7 @@ const FormPage = () => {
                     </li>
                   </ul>
                 </div>
-                {activeTab === "form1" && (
+                {activeTab === 'form1' && (
                   <>
                     <p
                       data-aos="fade-up"
@@ -220,7 +220,7 @@ const FormPage = () => {
                     </form>
                   </>
                 )}
-                {activeTab === "form2" && (
+                {activeTab === 'form2' && (
                   <>
                     <p
                       data-aos="fade-up"
@@ -289,7 +289,7 @@ const FormPage = () => {
         </div>
       </div>
     </>
-  );
-};
+  )
+}
 
-export default FormPage;
+export default FormPage

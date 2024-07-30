@@ -1,48 +1,48 @@
-import React, { useState } from "react";
-import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
-import Modal from "./Modal";
+import React, { useState } from 'react'
+import Slider from 'react-slick'
+import 'slick-carousel/slick/slick.css'
+import 'slick-carousel/slick/slick-theme.css'
+import Modal from './Modal'
 
 const TestimonialData = [
   {
     id: 1,
-    name: "Dilshad",
-    text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque reiciendis inventore iste ratione ex alias quis magni at optio",
-    status: "Inactive",
+    name: 'Dilshad',
+    text: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque reiciendis inventore iste ratione ex alias quis magni at optio',
+    status: 'Inactive',
     amount: 2345,
   },
   {
     id: 2,
-    name: "Sabir ali",
-    text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque reiciendis inventore iste ratione ex alias quis magni at optio",
-    status: "Active",
+    name: 'Sabir ali',
+    text: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque reiciendis inventore iste ratione ex alias quis magni at optio',
+    status: 'Active',
     amount: 34567,
   },
   {
     id: 3,
-    name: "Dipankar kumar",
-    text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque reiciendis inventore iste ratione ex alias quis magni at optio",
-    status: "Inactive",
+    name: 'Dipankar kumar',
+    text: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque reiciendis inventore iste ratione ex alias quis magni at optio',
+    status: 'Inactive',
     amount: 8765,
   },
   {
     id: 5,
-    name: "Satya Narayan",
-    text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque reiciendis inventore iste ratione ex alias quis magni at optio",
-    status: "Active",
+    name: 'Satya Narayan',
+    text: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque reiciendis inventore iste ratione ex alias quis magni at optio',
+    status: 'Active',
     amount: 0,
   },
-];
+]
 
 const Proposals = () => {
-  const [showModal, setShowModal] = useState(false);
-  const [selectedData, setSelectedData] = useState(null);
+  const [showModal, setShowModal] = useState(false)
+  const [selectedData, setSelectedData] = useState(null)
 
   const handleCardClick = (data) => {
-    setSelectedData(data);
-    setShowModal(true);
-  };
+    setSelectedData(data)
+    setShowModal(true)
+  }
 
   var settings = {
     dots: true,
@@ -52,7 +52,7 @@ const Proposals = () => {
     slidesToScroll: 1,
     autoplay: true,
     autoplaySpeed: 2000,
-    cssEase: "linear",
+    cssEase: 'linear',
     pauseOnHover: true,
     pauseOnFocus: true,
     responsive: [
@@ -80,7 +80,7 @@ const Proposals = () => {
         },
       },
     ],
-  };
+  }
 
   return (
     <div className="py-10 mb-10">
@@ -114,9 +114,9 @@ const Proposals = () => {
                   <div className="flex items-center divide-x-2 divide-gray-500 dark:divide-gray-700">
                     <div
                       className={`pr-3 font-medium ${
-                        data.status === "Active"
-                          ? "text-green-500"
-                          : "text-red-500"
+                        data.status === 'Active'
+                          ? 'text-green-500'
+                          : 'text-red-500'
                       }`}
                     >
                       {data.status}
@@ -142,7 +142,7 @@ const Proposals = () => {
         />
       )}
     </div>
-  );
-};
+  )
+}
 
-export default Proposals;
+export default Proposals

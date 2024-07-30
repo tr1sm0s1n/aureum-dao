@@ -1,0 +1,28 @@
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[package]
+name = "contract"
+version = "0.1.0"
+edition = "2021"
+license = "MPL-2.0"
+authors = [ "tr1sm0s1n <mobinm.mohanan@gmail.com>" ]
+description = "Concordium DAO Smart Contract"
+
+[features]
+default = ["std"]
+std = ["concordium-std/std"]
+bump_alloc = ["concordium-std/bump_alloc"]
+
+[dependencies]
+concordium-std = {version = "10.0", default-features = false}
+
+[dev-dependencies]
+concordium-smart-contract-testing = "4.2"
+concordium-std-derive = "6.0.0"
+
+[lib]
+crate-type=["cdylib", "rlib"]
+
+[profile.release]
+opt-level = "s"
+codegen-units = 1

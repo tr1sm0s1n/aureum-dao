@@ -1,67 +1,74 @@
-import React, { useState } from "react";
-import ConfusedFacePng from "../../assets/confused_face.png";
-import FaceWithPeekingEyePng from "../../assets/face_with_peeking_eye.png";
-import { useNavigate } from "react-router-dom";
-import {
-  getPastDate,
-  MIN_DATE,
-  Web3StatementBuilder,
-} from "@concordium/web-sdk";
-import { detectConcordiumProvider } from "@concordium/browser-wallet-api-helpers";
-import { toast, ToastContainer } from "react-toastify";
+import React, { useState, useCallback, useEffect } from 'react'
+import ConfusedFacePng from '../../assets/confused_face.png'
+import FaceWithPeekingEyePng from '../../assets/face_with_peeking_eye.png'
+import { useNavigate } from 'react-router-dom'
+
+import { detectConcordiumProvider } from '@concordium/browser-wallet-api-helpers'
+import { getStatement, getChallenge, authorize } from '../util'
 
 const Hero = () => {
-  const [imageSrc, setImageSrc] = useState(ConfusedFacePng);
-  const [verificationFailed, setVerificationFailed] = useState(false);
-  const navigate = useNavigate();
+  const [imageSrc, setImageSrc] = useState(ConfusedFacePng)
+  const [verificationFailed, setVerificationFailed] = useState(false)
+  const [account, setAccount] = useState()
+  const [authToken, setAuthToken] = useState()
+  const navigate = useNavigate()
 
-  const ageCheck = async () => {
-    const provider = await detectConcordiumProvider();
-    try {
-      await provider.requestAccounts();
+  const VERIFIER_URL = 'http://127.0.0.1:4800'
 
-      const statementBuilder =
-        new Web3StatementBuilder().addForIdentityCredentials(
-          [0, 1, 2, 3, 4, 5],
-          (b) => b.addRange("dob", MIN_DATE, getPastDate(18, 1)),
-        );
-      const statement = statementBuilder.getStatements();
-      const challenge =
-        "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB";
+  const handleConnect = useCallback(
+    () =>
+      detectConcordiumProvider()
+        .then((provider) => provider.requestAccounts())
+        .then(setAccount),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  )
 
-      const verified = await provider.requestVerifiablePresentation(
-        challenge,
-        statement,
-      );
-      console.log("verified", verified);
-
-      if (verified) {
-        // TODO: Verify the proof here if necessary
-        navigate("/welcome");
-      } else {
-        setVerificationFailed(true);
-      }
-    } catch (error) {
-      console.error(error);
-      // toast.error("Please Connect", {
-      //   position: "top-right",
-      //   autoClose: 3000,
-      //   hideProgressBar: false,
-      //   closeOnClick: true,
-      //   pauseOnHover: true,
-      //   draggable: true,
-      // });
-      alert("please connect");
+  const handleAuthorize = useCallback(async () => {
+    if (!account) {
+      setVerificationFailed(true)
+      throw new Error('Unreachable')
     }
-  };
+    // defined bu vtk
+    const verifier = VERIFIER_URL
+    const provider = await detectConcordiumProvider()
+    // console.log("provider",provider)
+    const challenge = await getChallenge(verifier, account)
+    // console.log('challenge',challenge)
+    const statement = await getStatement(verifier)
+    // console.log("statement",statement)
+    const proof = await provider.requestIdProof(account, statement, challenge)
+    // console.log("proof",proof)
+    const newAuthToken = await authorize(verifier, challenge, proof)
+    // console.log("token",newAuthToken)
 
-  const handleVerifyClick = () => {
-    ageCheck();
-  };
+    setAuthToken(newAuthToken)
+    navigate('/dashboard')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [account])
 
-  const handleCloseClick = () => {
-    setVerificationFailed(false);
-  };
+  useEffect(() => {
+    detectConcordiumProvider()
+      .then((provider) => {
+        // Listen for relevant events from the wallet.
+        provider.on('accountChanged', setAccount)
+        provider.on(
+          'accountDisconnected',
+          () => void provider.getMostRecentlySelectedAccount().then(setAccount),
+        )
+        // Check if you are already connected
+        provider
+          .getMostRecentlySelectedAccount()
+          .then(setAccount)
+          .catch(console.error)
+      })
+      .catch(() => setAccount(undefined))
+  }, [])
+
+  const handleErrorOnLoad = useCallback(() => {
+    setAuthToken(undefined)
+    setTimeout(() => alert('Authorization is no longer valid'), 100)
+  }, [])
 
   return (
     <div className="h-screen bg-indigo-400 flex justify-center items-center text-white">
@@ -71,7 +78,7 @@ const Hero = () => {
           <div className="flex flex-col items-center text-center">
             <h2 className="text-xl font-bold text-red-600">
               Age verification was not completed. You are not allowed to access
-              the beer store!
+              the DAO DApp!
             </h2>
 
             <button
@@ -93,23 +100,68 @@ const Hero = () => {
                 height="100"
               />
             </div>
-            <h2 className="mt-10 text-center text-xl font-bold text-indigo-600">
-              Click to verify your age
-            </h2>
-            <button
-              type="button"
-              className="mt-10 mx-auto md:w-1/2 rounded-md bg-indigo-400 px-3 py-2.5 text-lg text-center font-medium tracking-wide text-white shadow-sm hover:bg-indigo-600"
-              onMouseEnter={() => setImageSrc(FaceWithPeekingEyePng)}
-              onMouseLeave={() => setImageSrc(ConfusedFacePng)}
-              onClick={handleVerifyClick}
-            >
-              Verify
-            </button>
+
+            {account && (
+              <>
+                {/* <p className="link text-black">Connected to{' '}</p>
+
+                <button
+                  className="link text-black"
+                  type="button"
+                  onClick={() => {
+                    window.open(
+                      `https://testnet.ccdscan.io/?dcount=1&dentity=account&daddress=${account}`,
+                      '_blank',
+                      'noopener,noreferrer',
+                    )
+                  }}
+                >
+                  {account}{' '}
+                </button> */}
+                <div>
+                  {!authToken && (
+                    <>
+                      <h2 className="mt-10 text-center text-xl font-bold text-indigo-600">
+                        Click to verify your age & nationality
+                      </h2>
+                      <button
+                        className="flex flex-col items-center mt-10 mx-auto md:w-1/2 rounded-md bg-indigo-400 px-3 py-2.5 text-lg text-center font-medium tracking-wide text-white shadow-sm hover:bg-indigo-600"
+                        onMouseEnter={() => setImageSrc(FaceWithPeekingEyePng)}
+                        onMouseLeave={() => setImageSrc(ConfusedFacePng)}
+                        type="button"
+                        onClick={() =>
+                          handleAuthorize().catch((e) => alert(e.message))
+                        }
+                      >
+                        Verify
+                      </button>
+                    </>
+                  )}
+                  {authToken && <p>Authorized</p>}
+                </div>
+              </>
+            )}
+            {!account && (
+              <>
+                <h2 className="mt-10 text-center text-xl font-bold text-indigo-600">
+                  Click connect your wallet
+                </h2>
+                <button
+                  className="mt-10 mx-auto md:w-1/2 rounded-md bg-indigo-400 px-3 py-2.5 text-lg text-center font-medium tracking-wide text-white shadow-sm hover:bg-indigo-600"
+                  onMouseEnter={() => setImageSrc(FaceWithPeekingEyePng)}
+                  onMouseLeave={() => setImageSrc(ConfusedFacePng)}
+                  type="button"
+                  onClick={handleConnect}
+                >
+                  Connect
+                </button>
+              </>
+            )}
           </>
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Hero;
+export default Hero

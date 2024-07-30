@@ -1,9 +1,9 @@
-import React from "react";
+import React from 'react'
 
-import Navbar from "../Navbar/Navbar";
-import Home from "../Home/Home";
-import FormPage from "../FormPage/FormPage";
-import Proposals from "../Proposals/Proposals";
+import Navbar from '../Navbar/Navbar'
+import Home from '../Home/Home'
+import FormPage from '../FormPage/FormPage'
+import Proposals from '../Proposals/Proposals'
 
 const LandingPage = () => {
   return (
@@ -13,7 +13,7 @@ const LandingPage = () => {
       <FormPage />
       <Proposals />
     </>
-  );
-};
+  )
+}
 
-export default LandingPage;
+export default LandingPage

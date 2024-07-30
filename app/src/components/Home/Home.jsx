@@ -1,7 +1,7 @@
-import React from "react";
-import CharityPng from "../../assets/sideImage.png";
+import React from 'react'
+import CharityPng from '../../assets/sideImage.png'
 
-const Hero = () => {
+const Home = () => {
   return (
     <>
       <div className="min-h-[550px] sm:min-h-[600px] bg-brandDark flex justify-center items-center text-white">
@@ -15,7 +15,7 @@ const Hero = () => {
                 className="text-5xl sm:text-4xl lg:text-5xl font-bold"
               >
                 Lorem Ipsum is simply dummy text of the printing and typesetting
-                industry.{" "}
+                industry.{' '}
               </h1>
             </div>
             {/* Image section */}
@@ -48,7 +48,7 @@ const Hero = () => {
         </div>
       </div>
     </>
-  );
-};
+  )
+}
 
-export default Hero;
+export default Home
