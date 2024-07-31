@@ -116,7 +116,7 @@ fn test_power() {
                 amount: Amount::zero(),
                 receive_name: OwnedReceiveName::new_unchecked("DAO.get_power".to_string()),
                 address: init.contract_address,
-                message: OwnedParameter::empty(),
+                message: OwnedParameter::from_serial(&ACC_ADDR_OWNER).expect("Get power"),
             },
         )
         .expect("Get power");
@@ -133,7 +133,7 @@ fn test_power() {
                 amount: Amount::zero(),
                 receive_name: OwnedReceiveName::new_unchecked("DAO.get_power".to_string()),
                 address: init.contract_address,
-                message: OwnedParameter::empty(),
+                message: OwnedParameter::from_serial(&ACC_ADDR_OTHER).expect("Get power"),
             },
         )
         .expect("Get power");

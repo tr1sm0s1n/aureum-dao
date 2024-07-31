@@ -277,14 +277,16 @@ fn dao_all_members(
 #[receive(
     contract = "DAO",
     name = "get_power",
+    parameter = "AccountAddress",
     return_value = "u64",
     error = "DAOError"
 )]
 fn dao_get_power(ctx: &ReceiveContext, host: &Host<DAOState>) -> ReceiveResult<u64> {
+    let addr: AccountAddress = ctx.parameter_cursor().get()?;
     let state = host.state();
 
     for (address, power) in state.members.iter() {
-        if *address == ctx.invoker() {
+        if *address == addr {
             return Ok(*power);
         }
     }
