@@ -1,7 +1,25 @@
-import React from 'react'
-import CharityPng from '../../assets/sideImage.png'
+import React, { useState,useEffect } from 'react'
+import CharityPng from '../../assets/charity.png'
+import Modal from '../Modal/Modal'
+import { init, createProposal,getAllProposals } from '../Wallet';
+
 
 const Home = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [client, setClient] = useState();
+  const [connectedAccount, setConnectedAccount] = useState();
+  const handleOpenModal = () => {
+    setIsModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false)
+  }
+  // Attempt to initialize Browser Wallet Client.
+  useEffect(() => {
+    init(setConnectedAccount).then(setClient).catch(console.error);
+}, []);
+
   return (
     <>
       <div className="min-h-[550px] sm:min-h-[600px] bg-brandDark flex justify-center items-center text-white">
@@ -17,6 +35,40 @@ const Home = () => {
                 Lorem Ipsum is simply dummy text of the printing and typesetting
                 industry.{' '}
               </h1>
+              <div data-aos="fade-up" data-aos-delay="400">
+                <button
+                  onClick={handleOpenModal}
+                  data-modal-target="default-modal"
+                  data-modal-toggle="default-modal"
+                  className="bg-gradient-to-r from-primary to-secondary border-2 border-primary hover:scale-105 duration-200 text-white py-2 px-4 rounded-full"
+                >
+                  Fill the Form
+                </button>
+              </div>
+              <div data-aos="fade-up" data-aos-delay="400">
+                <button
+                  onClick={() =>
+                    createProposal(client,9700, "test...", 20, connectedAccount)
+                  }
+                  data-modal-target="default-modal"
+                  data-modal-toggle="default-modal"
+                  className="bg-gradient-to-r from-primary to-secondary border-2 border-primary hover:scale-105 duration-200 text-white py-2 px-4 rounded-full"
+                >
+                  Create sample proposal
+                </button>
+              </div>
+              <div data-aos="fade-up" data-aos-delay="400">
+                <button
+                  onClick={() =>
+                    getAllProposals(client,9700)
+                  }
+                  data-modal-target="default-modal"
+                  data-modal-toggle="default-modal"
+                  className="bg-gradient-to-r from-primary to-secondary border-2 border-primary hover:scale-105 duration-200 text-white py-2 px-4 rounded-full"
+                >
+                  Get all proposals
+                </button>
+              </div>
             </div>
             {/* Image section */}
             <div
@@ -47,6 +99,8 @@ const Home = () => {
           </div>
         </div>
       </div>
+
+      {isModalOpen && <Modal handleCloseModal={handleCloseModal} />}
     </>
   )
 }
