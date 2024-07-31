@@ -87,6 +87,62 @@ fn test_insert() {
 }
 
 #[test]
+fn test_power() {
+    let (mut chain, init) = setup_chain_and_contract();
+    let insert_amount = Amount::from_ccd(10);
+
+    // Insert 10 CCD.
+    chain
+        .contract_update(
+            SIGNER,
+            ACC_ADDR_OWNER,
+            Address::Account(ACC_ADDR_OWNER),
+            Energy::from(10_000),
+            UpdateContractPayload {
+                amount: insert_amount,
+                address: init.contract_address,
+                receive_name: OwnedReceiveName::new_unchecked("DAO.insert".to_string()),
+                message: OwnedParameter::empty(),
+            },
+        )
+        .expect("Update succeeds with new insert");
+
+    let invoke = chain
+        .contract_invoke(
+            ACC_ADDR_OWNER,
+            Address::Account(ACC_ADDR_OWNER),
+            Energy::from(10_000),
+            UpdateContractPayload {
+                amount: Amount::zero(),
+                receive_name: OwnedReceiveName::new_unchecked("DAO.get_power".to_string()),
+                address: init.contract_address,
+                message: OwnedParameter::empty(),
+            },
+        )
+        .expect("Get power");
+
+    let return_value: u64 = invoke.parse_return_value().expect("Proposals return value");
+    assert_eq!(return_value, insert_amount.micro_ccd());
+
+    let invoke = chain
+        .contract_invoke(
+            ACC_ADDR_OTHER,
+            Address::Account(ACC_ADDR_OTHER),
+            Energy::from(10_000),
+            UpdateContractPayload {
+                amount: Amount::zero(),
+                receive_name: OwnedReceiveName::new_unchecked("DAO.get_power".to_string()),
+                address: init.contract_address,
+                message: OwnedParameter::empty(),
+            },
+        )
+        .expect("Get power");
+
+    let return_value: u64 = invoke.parse_return_value().expect("Proposals return value");
+    assert_eq!(return_value, 0);
+}
+
+#[test]
 fn test_create_proposal() {
     let (mut chain, init) = setup_chain_and_contract();
 

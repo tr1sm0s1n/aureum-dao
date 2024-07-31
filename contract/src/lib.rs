@@ -47,9 +47,9 @@ pub enum DAOError {
     ParseParams,
     /// Your error
     Unauthorized,
-    AlreadyApproved,
     ProposalNotFound,
     NotApproved,
+    AlreadyApproved,
     InsufficientBalance,
     AmountCollected,
 }
@@ -272,6 +272,24 @@ fn dao_all_members(
     host: &Host<DAOState>,
 ) -> ReceiveResult<Vec<(AccountAddress, u64)>> {
     Ok(host.state().members.clone())
+}
+
+#[receive(
+    contract = "DAO",
+    name = "get_power",
+    return_value = "u64",
+    error = "DAOError"
+)]
+fn dao_get_power(ctx: &ReceiveContext, host: &Host<DAOState>) -> ReceiveResult<u64> {
+    let state = host.state();
+
+    for (address, power) in state.members.iter() {
+        if *address == ctx.invoker() {
+            return Ok(*power);
+        }
+    }
+
+    Ok(0)
 }
 
 /// Insert some CCD into DAO, allowed by anyone.
