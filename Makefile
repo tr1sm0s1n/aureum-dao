@@ -3,7 +3,11 @@ CONTRACT_DIR = cd contract/
 SERVER_DIR = cd server/
 APP_DIR = cd app/
 
-.PHONY: concordium contract test app build run fmt help
+.PHONY: install concordium contract test app build run fmt help
+
+#? install: Install the necessary dependencies.
+install: concordium
+	@$(APP_DIR) && npm install
 
 #? concordium: Install Concordium SDK.
 concordium:
