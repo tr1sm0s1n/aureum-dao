@@ -2,8 +2,13 @@ import React, { useContext, useState } from 'react'
 import { motion } from 'framer-motion'
 import { MdClose } from 'react-icons/md'
 import { UserContext } from '../../App'
+import {
+  renounceVotes,
+  voteForProposal,
+  withdrawFunds,
+} from '../../utils/wallet'
 
-const Modal = ({ showModal, setShowModal, data }) => {
+const Modal = ({ showModal, setShowModal, data, power }) => {
   const { user, client } = useContext(UserContext)
   const [voteNumber, setVoteNumber] = useState('')
   const [voteError, setVoteError] = useState('')
@@ -38,14 +43,23 @@ const Modal = ({ showModal, setShowModal, data }) => {
     }
   }
 
-  const handleVote = () => {
-    if (!voteNumber) {
-      setVoteError('Please enter a number.')
+  const handleVote = async () => {
+    if (voteNumber > parseInt(power)) {
+      setVoteError('Please enter a valid number.')
     } else {
       setVoteError('')
+      console.log(voteNumber)
+      let res = await voteForProposal(client, data[0], voteNumber, user)
+      console.log(res)
       alert('Vote submitted successfully!')
       // Handle vote submission logic here
     }
+  }
+
+  const handleRenounce = async (renounce) => {
+    console.log(renounce)
+    let res = await renounceVotes(client, data[0], renounce, user)
+    console.log(res)
   }
 
   const handleInputChange = (e) => {
@@ -53,6 +67,11 @@ const Modal = ({ showModal, setShowModal, data }) => {
     if (e.target.value) {
       setVoteError('')
     }
+  }
+
+  const withdraw = async () => {
+    let res = await withdrawFunds(client, data[0], user)
+    console.log(res)
   }
 
   const [currentPage, setCurrentPage] = useState(1)
@@ -120,7 +139,7 @@ const Modal = ({ showModal, setShowModal, data }) => {
               {user == data[1].proposer &&
                 Object.keys(data[1].status)[0] === 'Approved' && (
                   <button
-                    onClick={() => alert('Withdraw clicked')}
+                    onClick={withdraw}
                     className="ml-auto bg-primary border-primary hover:scale-105 duration-200 text-white px-4 py-2 rounded-full"
                   >
                     Withdraw
@@ -140,6 +159,7 @@ const Modal = ({ showModal, setShowModal, data }) => {
                     <input
                       type="number"
                       value={voteNumber}
+                      max={parseInt(power)}
                       onChange={handleInputChange}
                       className="mt-1 block w-48 p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     />
@@ -153,7 +173,7 @@ const Modal = ({ showModal, setShowModal, data }) => {
                     </label>
                     <input
                       type="number"
-                      value={100}
+                      value={parseInt(power)}
                       disabled
                       className="mt-1 block w-48 p-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 sm:text-sm"
                     />
@@ -199,10 +219,12 @@ const Modal = ({ showModal, setShowModal, data }) => {
                       </th>
                       <td className="px-6 py-4">{item[1].toString()}</td>
                       {user == item[0] &&
-                        data[1] &&
                         Object.keys(data[1].status)[0] === 'Active' && (
                           <td className="px-6 py-4">
-                            <button className="bg-primary border-2 border-primary hover:scale-105 duration-200 text-white py-2 px-4 rounded-full">
+                            <button
+                              onClick={() => handleRenounce(item[1])}
+                              className="bg-primary border-2 border-primary hover:scale-105 duration-200 text-white py-2 px-4 rounded-full"
+                            >
                               Renounce
                             </button>
                           </td>

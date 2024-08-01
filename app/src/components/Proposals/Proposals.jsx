@@ -4,15 +4,17 @@ import 'slick-carousel/slick/slick.css'
 import 'slick-carousel/slick/slick-theme.css'
 import Modal from './Modal'
 import { UserContext } from '../../App'
-import { getAllProposals, getPower } from '../../utils/wallet'
+import { getAllMembers, getAllProposals, getPower } from '../../utils/wallet'
 
 const Proposals = () => {
   const ctx = useContext(UserContext)
   const [proposals, setProposals] = useState([])
   const [showModal, setShowModal] = useState(false)
+  const [power, setPower] = useState()
   const [selectedData, setSelectedData] = useState(null)
 
   console.log('ppp', proposals)
+  console.log('pow', power)
 
   const handleCardClick = (data) => {
     setSelectedData(data)
@@ -59,7 +61,12 @@ const Proposals = () => {
 
   useEffect(() => {
     getAllProposals(ctx.client).then(setProposals).catch(console.error)
-    getPower(ctx.client, ctx.user).catch(console.error)
+    getAllMembers(ctx.client)
+      .then((members) => {
+        let memberMap = new Map(members)
+        setPower(memberMap.get(ctx.user))
+      })
+      .catch(console.error)
   }, [])
 
   return (
@@ -135,6 +142,7 @@ const Proposals = () => {
             showModal={showModal}
             setShowModal={setShowModal}
             data={selectedData}
+            power={power}
           />
         )}
       </div>

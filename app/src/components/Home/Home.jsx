@@ -14,10 +14,8 @@ const Home = () => {
                 data-aos-once="true"
                 className="text-5xl sm:text-4xl lg:text-5xl font-bold"
               >
-                AUREUM, a Charity DAO DApp, built on the Concordium blockchain.
-                This project aims to create a decentralized autonomous
-                organization (DAO) to manage and distribute charitable donations
-                transparently and efficiently.
+                A decentralized autonomous organization (DAO) to manage and
+                distribute charitable donations transparently and efficiently.
               </h1>
             </div>
             <div
