@@ -39,6 +39,16 @@ pub struct VoteInput {
     pub votes: u64,
 }
 
+#[derive(Debug, Serialize, SchemaType, PartialEq, Eq)]
+pub struct WithdrawInput {
+    pub proposal_id: u64,
+}
+
+#[derive(Debug, Serialize, SchemaType, PartialEq, Eq)]
+pub struct AddressInput {
+    pub address: AccountAddress,
+}
+
 /// Your smart contract errors.
 #[derive(Debug, PartialEq, Eq, Reject, Serialize, SchemaType)]
 pub enum DAOError {
@@ -277,16 +287,16 @@ fn dao_all_members(
 #[receive(
     contract = "DAO",
     name = "get_power",
-    parameter = "AccountAddress",
+    parameter = "AddressInput",
     return_value = "u64",
     error = "DAOError"
 )]
 fn dao_get_power(ctx: &ReceiveContext, host: &Host<DAOState>) -> ReceiveResult<u64> {
-    let addr: AccountAddress = ctx.parameter_cursor().get()?;
+    let input: AddressInput = ctx.parameter_cursor().get()?;
     let state = host.state();
 
     for (address, power) in state.members.iter() {
-        if *address == addr {
+        if *address == input.address {
             return Ok(*power);
         }
     }
@@ -318,9 +328,14 @@ fn dao_insert(
     Ok(())
 }
 
-#[receive(contract = "DAO", name = "withdraw", parameter = "u64", mutable)]
+#[receive(
+    contract = "DAO",
+    name = "withdraw",
+    parameter = "WithdrawInput",
+    mutable
+)]
 fn dao_withdraw(ctx: &ReceiveContext, host: &mut Host<DAOState>) -> ReceiveResult<()> {
-    let proposal_id: u64 = ctx.parameter_cursor().get()?;
+    let input: WithdrawInput = ctx.parameter_cursor().get()?;
     let caller = ctx.invoker();
 
     // Extract necessary information without borrowing state
@@ -329,7 +344,7 @@ fn dao_withdraw(ctx: &ReceiveContext, host: &mut Host<DAOState>) -> ReceiveResul
         let mut found_proposal = None;
 
         for (id, p) in &state.proposals {
-            if *id == proposal_id && p.proposer == caller {
+            if *id == input.proposal_id && p.proposer == caller {
                 found_proposal = Some((p.status.clone(), p.amount));
                 break;
             }
@@ -352,7 +367,7 @@ fn dao_withdraw(ctx: &ReceiveContext, host: &mut Host<DAOState>) -> ReceiveResul
     // Perform mutable operation
     let state = host.state_mut();
     for (id, p) in &mut state.proposals {
-        if *id == proposal_id {
+        if *id == input.proposal_id {
             // Perform the transfer
             p.status = Status::Collected;
             return Ok(host.invoke_transfer(&caller, proposal_amount)?);
