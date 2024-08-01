@@ -1,5 +1,5 @@
 import React, { useState,useEffect } from 'react'
-import CharityPng from '../../assets/charity.png'
+import homeImage from '../../assets/hero.png'
 import Modal from '../Modal/Modal'
 import { init, createProposal,getAllProposals } from '../Wallet';
 
@@ -78,7 +78,7 @@ const Home = () => {
             >
               <img
                 data-aos-once="true"
-                src={CharityPng}
+                src={homeImage}
                 alt="charity img"
                 className="w-[300px] sm:w-[450px] sm:scale-125 mx-auto spin "
               />

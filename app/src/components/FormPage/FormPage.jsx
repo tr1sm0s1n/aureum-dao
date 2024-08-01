@@ -80,7 +80,7 @@ const FormPage = () => {
 
   return (
     <>
-      <span id="about"></span>
+      <span id="form"></span>
       <div style={bgImage}>
         <div className="min-h-[600px] flex justify-center items-center py-12 sm:py-0">
           <div className="container">
@@ -113,7 +113,7 @@ const FormPage = () => {
                   >
                     <li className="mr-2" role="presentation">
                       <button
-                        className={`inline-block py-4 px-4 text-md font-medium text-center border-b-2 ${activeTab === 'form1' ? 'text-gray-600 border-gray-300' : 'text-gray-500 border-transparent hover:text-gray-600 hover:border-gray-300'}`}
+                        className={`inline-block py-4 px-4 text-xl font-bold text-center border-b-2 ${activeTab === 'form1' ? 'text-brandDark border-primary' : 'text-gray-400 border-transparent hover:text-primary hover:border-secondary'}`}
                         onClick={() => setActiveTab('form1')}
                         role="tab"
                       >
@@ -122,7 +122,7 @@ const FormPage = () => {
                     </li>
                     <li className="mr-2" role="presentation">
                       <button
-                        className={`inline-block py-4 px-4 text-md font-medium text-center border-b-2 ${activeTab === 'form2' ? 'text-gray-600 border-gray-300' : 'text-gray-500 border-transparent hover:text-gray-600 hover:border-gray-300'}`}
+                        className={`inline-block py-4 px-4 text-xl font-bold text-center border-b-2 ${activeTab === 'form2' ? 'text-brandDark border-primary' : 'text-gray-400 border-transparent hover:text-primary hover:border-secondary'}`}
                         onClick={() => setActiveTab('form2')}
                         role="tab"
                       >

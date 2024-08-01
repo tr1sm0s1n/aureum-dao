@@ -10,12 +10,12 @@ const Menu = [
   {
     id: 2,
     name: 'Form',
-    link: '/#services',
+    link: '/#form',
   },
   {
     id: 3,
     name: 'Proposals',
-    link: '/#about',
+    link: '/#proposals',
   },
 ]
 const Navbar = () => {
