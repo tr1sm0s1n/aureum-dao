@@ -1,5 +1,4 @@
 import React from 'react'
-import Logo from '../../assets/website/kba.png'
 
 const Menu = [
   {
@@ -30,7 +29,7 @@ const Navbar = () => {
                 href="#"
                 className="font-bold text-2xl sm:text-3xl flex justify-center items-center gap-2 tracking-wider "
               >
-                AUREUM - Concordium DAO DApp
+                AUREUM - Concordium Charity DAO
               </a>
             </div>
 

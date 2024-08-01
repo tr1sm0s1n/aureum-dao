@@ -1,25 +1,7 @@
-import React, { useState,useEffect } from 'react'
+import React from 'react'
 import homeImage from '../../assets/hero.png'
-import Modal from '../Modal/Modal'
-import { init, createProposal,getAllProposals } from '../Wallet';
-
 
 const Home = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [client, setClient] = useState();
-  const [connectedAccount, setConnectedAccount] = useState();
-  const handleOpenModal = () => {
-    setIsModalOpen(true)
-  }
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false)
-  }
-  // Attempt to initialize Browser Wallet Client.
-  useEffect(() => {
-    init(setConnectedAccount).then(setClient).catch(console.error);
-}, []);
-
   return (
     <>
       <div className="min-h-[550px] sm:min-h-[600px] bg-brandDark flex justify-center items-center text-white">
@@ -32,45 +14,12 @@ const Home = () => {
                 data-aos-once="true"
                 className="text-5xl sm:text-4xl lg:text-5xl font-bold"
               >
-                Lorem Ipsum is simply dummy text of the printing and typesetting
-                industry.{' '}
+                AUREUM, a Charity DAO DApp, built on the Concordium blockchain.
+                This project aims to create a decentralized autonomous
+                organization (DAO) to manage and distribute charitable donations
+                transparently and efficiently.
               </h1>
-              <div data-aos="fade-up" data-aos-delay="400">
-                <button
-                  onClick={handleOpenModal}
-                  data-modal-target="default-modal"
-                  data-modal-toggle="default-modal"
-                  className="bg-gradient-to-r from-primary to-secondary border-2 border-primary hover:scale-105 duration-200 text-white py-2 px-4 rounded-full"
-                >
-                  Fill the Form
-                </button>
-              </div>
-              <div data-aos="fade-up" data-aos-delay="400">
-                <button
-                  onClick={() =>
-                    createProposal(client,9700, "test...", 20, connectedAccount)
-                  }
-                  data-modal-target="default-modal"
-                  data-modal-toggle="default-modal"
-                  className="bg-gradient-to-r from-primary to-secondary border-2 border-primary hover:scale-105 duration-200 text-white py-2 px-4 rounded-full"
-                >
-                  Create sample proposal
-                </button>
-              </div>
-              <div data-aos="fade-up" data-aos-delay="400">
-                <button
-                  onClick={() =>
-                    getAllProposals(client,9700)
-                  }
-                  data-modal-target="default-modal"
-                  data-modal-toggle="default-modal"
-                  className="bg-gradient-to-r from-primary to-secondary border-2 border-primary hover:scale-105 duration-200 text-white py-2 px-4 rounded-full"
-                >
-                  Get all proposals
-                </button>
-              </div>
             </div>
-            {/* Image section */}
             <div
               data-aos="zoom-in"
               data-aos-duration="300"
@@ -99,8 +48,6 @@ const Home = () => {
           </div>
         </div>
       </div>
-
-      {isModalOpen && <Modal handleCloseModal={handleCloseModal} />}
     </>
   )
 }

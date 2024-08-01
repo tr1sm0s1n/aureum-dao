@@ -1,8 +1,10 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import BannerImg from '../../assets/form.png'
 import { MdAttachMoney } from 'react-icons/md'
 import { ImParagraphCenter } from 'react-icons/im'
 import BgImg from '../../assets/website/bg.jpg'
+import { UserContext } from '../../App'
+import { createProposal, insertFunds } from '../../utils/wallet'
 
 const bgImage = {
   backgroundImage: `url(${BgImg})`,
@@ -15,6 +17,8 @@ const bgImage = {
 }
 
 const FormPage = () => {
+  const ctx = useContext(UserContext)
+
   const [activeTab, setActiveTab] = useState('form1')
   const [form1Values, setForm1Values] = useState({
     amount: '',
@@ -62,19 +66,28 @@ const FormPage = () => {
     return Object.values(errors).every((error) => !error)
   }
 
-  const handleForm1Submit = (e) => {
+  const handleForm1Submit = async (e) => {
     e.preventDefault()
     if (validateForm1()) {
-      // Handle form submission (e.g., send data to server)
       console.log('Form 1 submitted', form1Values)
+      let res = await createProposal(
+        ctx.client,
+        form1Values.description,
+        form1Values.amount,
+        ctx.user,
+      )
+      console.log(res)
     }
   }
 
-  const handleForm2Submit = (e) => {
+  const handleForm2Submit = async (e) => {
     e.preventDefault()
     if (validateForm2()) {
       // Handle form submission (e.g., send data to server)
       console.log('Form 2 submitted', form2Values)
+
+      let res = await insertFunds(ctx.client, form2Values.amount, ctx.user)
+      console.log(res)
     }
   }
 
@@ -99,7 +112,7 @@ const FormPage = () => {
                   data-aos="fade-up"
                   className="text-3xl sm:text-4xl font-bold font-cursive"
                 >
-                  Fill the Form
+                  Proposals & Deposits
                 </h1>
                 <div
                   data-aos="fade-up"
@@ -117,16 +130,16 @@ const FormPage = () => {
                         onClick={() => setActiveTab('form1')}
                         role="tab"
                       >
-                        Form 1
+                        Create Proposal
                       </button>
                     </li>
                     <li className="mr-2" role="presentation">
                       <button
-                        className={`inline-block py-4 px-4 text-xl font-bold text-center border-b-2 ${activeTab === 'form2' ? 'text-brandDark border-primary' : 'text-gray-400 border-transparent hover:text-primary hover:border-secondary'}`}
+                        className={`inline-block py-4 px-4 text-md font-medium text-center border-b-2 ${activeTab === 'form2' ? 'text-gray-600 border-gray-300' : 'text-gray-500 border-transparent hover:text-gray-600 hover:border-gray-300'}`}
                         onClick={() => setActiveTab('form2')}
                         role="tab"
                       >
-                        Form 2
+                        Deposit Amount
                       </button>
                     </li>
                   </ul>
@@ -137,9 +150,8 @@ const FormPage = () => {
                       data-aos="fade-up"
                       className="text-sm text-gray-500 tracking-wide leading-5"
                     >
-                      Lorem ipsum, dolor sit amet consectetur adipisicing elit.
-                      Eaque reiciendis inventore iste ratione ex alias quis
-                      magni at optio
+                      Submit a description and the amount required for the
+                      charity.
                     </p>
                     <form onSubmit={handleForm1Submit}>
                       <div className="grid grid-cols-2 gap-6">
@@ -152,7 +164,7 @@ const FormPage = () => {
                             <MdAttachMoney className="text-4xl h-10 w-10 shadow-sm p-3 rounded-full bg-red-100" />
                             <div className="relative z-0 w-full mb-5 group">
                               <input
-                                type="text"
+                                type="number"
                                 name="amount"
                                 value={form1Values.amount}
                                 onChange={handleForm1Change}
@@ -163,7 +175,7 @@ const FormPage = () => {
                                 htmlFor="amount"
                                 className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
                               >
-                                Amount
+                                Amount (micro CCD)
                               </label>
                               {form1Errors.amount && (
                                 <p className="text-red-500 text-xs mt-1">
@@ -226,12 +238,8 @@ const FormPage = () => {
                       data-aos="fade-up"
                       className="text-sm text-gray-500 tracking-wide leading-5"
                     >
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                      sed do eiusmod tempor incididunt ut labore et dolore magna
-                      aliqua. Ut enim ad minim veniam, quis nostrud exercitation
-                      ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                      Duis aute irure dolor in reprehenderit in voluptate velit
-                      esse cillum dolore eu fugiat nulla pariatur.
+                      Deposit any amount to the smart contract to earn an
+                      equivalent voting power.
                     </p>
                     <form onSubmit={handleForm2Submit}>
                       <div className="grid grid-cols-2 gap-6">
@@ -244,7 +252,7 @@ const FormPage = () => {
                             <MdAttachMoney className="text-4xl h-10 w-10 shadow-sm p-3 rounded-full bg-orange-100" />
                             <div className="relative z-0 w-full mb-5 group">
                               <input
-                                type="text"
+                                type="number"
                                 name="amount"
                                 value={form2Values.amount}
                                 onChange={handleForm2Change}
@@ -255,7 +263,7 @@ const FormPage = () => {
                                 htmlFor="amount"
                                 className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
                               >
-                                Amount
+                                Amount (micro CCD)
                               </label>
                               {form2Errors.amount && (
                                 <p className="text-red-500 text-xs mt-1">

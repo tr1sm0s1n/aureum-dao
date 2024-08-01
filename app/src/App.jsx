@@ -1,10 +1,12 @@
-import React from 'react'
+import React, { createContext, useState } from 'react'
 import Hero from './components/Hero/Hero'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import LandingPage from './components/LandingPage/LandingPage'
 // import { ToastContainer } from "react-toastify";
+
+export const UserContext = createContext()
 
 const App = () => {
   React.useEffect(() => {
@@ -17,16 +19,24 @@ const App = () => {
     AOS.refresh()
   }, [])
 
+  const [user, setUser] = useState('')
+  const [client, setClient] = useState()
+
   return (
-    <div className="bg-white dark:bg-gray-900 dark:text-white duration-200 overflow-x-hidden">
-      <Router>
-        <Routes>
-          <Route path="/" element={<Hero />} />
-          <Route path="/dashboard" element={<LandingPage />} />
-        </Routes>
-      </Router>
-      {/* <ToastContainer /> */}
-    </div>
+    <UserContext.Provider value={{ user: user, client: client }}>
+      <div className="bg-white dark:bg-gray-900 dark:text-white duration-200 overflow-x-hidden">
+        <Router>
+          <Routes>
+            <Route
+              path="/"
+              element={<Hero setUser={setUser} setClient={setClient} />}
+            />
+            <Route path="/dashboard" element={<LandingPage />} />
+          </Routes>
+        </Router>
+        {/* <ToastContainer /> */}
+      </div>
+    </UserContext.Provider>
   )
 }
 
