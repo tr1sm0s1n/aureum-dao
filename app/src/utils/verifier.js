@@ -1,18 +1,10 @@
-// import { IdStatement, IdProofOutput } from '@concordium/web-sdk';
+import { VERIFIER_URL } from '../config/config'
 
-/**
- * Fetch the item names from the backend
- */
-export async function getNames(verifier) {
-  const response = await fetch(`${verifier}/names`, { method: 'get' })
-  const body = await response.json()
-  return JSON.parse(body)
-}
-
+const verifier = VERIFIER_URL
 /**
  * Fetch a challenge from the backend
  */
-export async function getChallenge(verifier, accountAddress) {
+export async function getChallenge(accountAddress) {
   const response = await fetch(
     `${verifier}/challenge?address=` + accountAddress,
     { method: 'get' },
@@ -24,7 +16,7 @@ export async function getChallenge(verifier, accountAddress) {
 /**
  * Fetch the statement to prove from the backend
  */
-export async function getStatement(verifier) {
+export async function getStatement() {
   const response = await fetch(`${verifier}/statement`, { method: 'get' })
   // console.log("inside getstatement- res", response)
   const body = await response.json()
@@ -36,7 +28,7 @@ export async function getStatement(verifier) {
 /**
  *  Authorize with the backend, and get a auth token.
  */
-export async function authorize(verifier, challenge, proof) {
+export async function authorize(challenge, proof) {
   const response = await fetch(`${verifier}/prove`, {
     method: 'post',
     headers: new Headers({ 'content-type': 'application/json' }),
