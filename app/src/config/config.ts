@@ -1,8 +1,8 @@
 import moment from 'moment'
 
-export const VERIFIER_URL = 'http://127.0.0.1:4800'
+export const VERIFIER_URL:string = 'http://127.0.0.1:4800'
 
-export const MODULE_REF =
+export const MODULE_REF:string =
   'c3b6825d3f5c309c8f6d6e0739e42ccdd5b619fd45482d821eb5941f89a4ceee'
 export const CONTRACT_NAME = 'DAO'
 export const CONTRACT_INDEX = 9740
