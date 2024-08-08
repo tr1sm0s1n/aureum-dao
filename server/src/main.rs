@@ -61,7 +61,7 @@ async fn main() -> anyhow::Result<()> {
         .init();
 
     // run it
-    let listener = tokio::net::TcpListener::bind("127.0.0.1:4800").await?;
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:4800").await?;
 
     tracing::debug!("Listening on http://{}", listener.local_addr()?);
     axum::serve(listener, app(state)).await?;
