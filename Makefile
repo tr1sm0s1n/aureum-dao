@@ -34,6 +34,14 @@ build:
 run: build
 	@$(SERVER_DIR) && RUST_LOG=debug cargo run
 
+#? up: Start Docker container.
+up:
+	@docker compose up --build
+
+#? down: Stop Docker container.
+run: build
+	@docker compose down
+
 fmt-a:
 	@$(APP_DIR) && npm run fmt
 
@@ -53,4 +61,4 @@ help: Makefile
 	@echo '  make [target]'
 	@echo ''
 	@echo 'Targets:'
-	@sed -n 's/^#?//p' $< | column -t -s ':' |  sort | sed -e 's/^/ /'
+	@sed -n 's/^#?//p' $< | column -t -s ':' | sed -e 's/^/ /'

@@ -1,0 +1,9 @@
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: aureum-dao-server
+    image: aureum-dao-server
+    ports:
+      - 4800:4800
