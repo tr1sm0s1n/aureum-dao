@@ -1,0 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Pacifico&family=Sriracha&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Pacifico&family=Sriracha&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.spin {
+  animation: spin 40s linear infinite;
+}
+
+/* smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+.box-shadow-top-bottom {
+  box-shadow:
+    0px -300px 300px rgb(79 70 229),
+    0px 300px 300px rgb(79 70 229);
+}
+
+.image-radius {
+  background-color: rgb(224 231 255);
+  border-radius: 51% 49% 68% 32% / 30% 63% 37% 70%;
+  height: 100px;
+  width: 200px;
+}
+
+/* Modal.css */
+
+.modal-overlay {
+  animation: fadeIn 0.5s forwards;
+}
+
+.modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 50%;
+  transform: scale(0.9);
+  animation: scaleUp 0.5s forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleUp {
+  to {
+    transform: scale(1);
+  }
+}
