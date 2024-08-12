@@ -1,7 +1,8 @@
 import Navbar from "../Navbar/Navbar";
-import Home from "../Home/Home";
 import FormPage from "../FormPage/FormPage";
 import Proposals from "../Proposals/Proposals";
+import Home from "../Home/Home";
+import AllProposals from "../AllProposals/AllProposals";
 
 const LandingPage = () => {
   return (
@@ -10,6 +11,7 @@ const LandingPage = () => {
       <Home />
       <FormPage />
       <Proposals />
+      <AllProposals />
     </>
   );
 };

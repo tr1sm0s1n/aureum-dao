@@ -1,7 +1,7 @@
 
 import homeImage from '../../assets/hero.png'
 
-const Hero = () => {
+const Home = () => {
     return (
         <>
             <div className="min-h-[550px] sm:min-h-[600px] bg-brandDark flex justify-center items-center text-white">
@@ -51,4 +51,4 @@ const Hero = () => {
     );
 };
 
-export default Hero;
+export default Home;

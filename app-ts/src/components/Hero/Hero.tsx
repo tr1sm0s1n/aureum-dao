@@ -1,10 +1,10 @@
 import { useState } from "react";
-import ConfusedFacePng from "../../assets/confused_face.png";
+import GrinningFace from "../../assets/grinning_face.png";
 import FaceWithPeekingEyePng from "../../assets/face_with_peeking_eye.png";
 
 
 const Hero = () => {
-    const [imageSrc, setImageSrc] = useState(ConfusedFacePng);
+    const [imageSrc, setImageSrc] = useState(GrinningFace);
     const [verificationFailed, setVerificationFailed] = useState(false);
 
     const handleCloseClick = () => {
@@ -48,7 +48,7 @@ const Hero = () => {
                             type="button"
                             className="mt-10 mx-auto md:w-1/2 rounded-md bg-indigo-400 px-3 py-2.5 text-lg text-center font-medium tracking-wide text-white shadow-sm hover:bg-indigo-600"
                             onMouseEnter={() => setImageSrc(FaceWithPeekingEyePng)}
-                            onMouseLeave={() => setImageSrc(ConfusedFacePng)}
+                            onMouseLeave={() => setImageSrc(GrinningFace)}
                         >
                             Verify
                         </button>
