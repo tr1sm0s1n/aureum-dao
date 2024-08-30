@@ -5,6 +5,10 @@ APP_DIR = cd app/
 
 .PHONY: install concordium contract test app build run fmt help
 
+###################
+## INITIAL SETUP ##
+###################
+
 #? install: Install the necessary dependencies.
 install: concordium
 	@$(APP_DIR) && npm install
@@ -14,6 +18,10 @@ concordium:
 	@rustup target add wasm32-unknown-unknown
 	@cargo install --locked cargo-concordium
 
+##############################
+## CONCORDIUM: BUILD & TEST ##
+##############################
+
 #? contract: Build contract.
 contract:
 	@$(CONTRACT_DIR) && cargo concordium build --out dist/module.wasm.v1 --schema-out dist/schema.bin
@@ -21,6 +29,10 @@ contract:
 #? test: Test contract.
 test: contract
 	@$(CONTRACT_DIR) && cargo concordium test
+
+######################################
+## APPLICATION: BUILD & RUN LOCALLY ##
+######################################
 
 #? app: Build client application.
 app:
@@ -34,6 +46,10 @@ build:
 run: build
 	@$(SERVER_DIR) && RUST_LOG=debug cargo run
 
+##############################
+## APPLICATION: WITH DOCKER ##
+##############################
+
 #? up: Start Docker container.
 up:
 	@docker compose up --build
@@ -41,6 +57,10 @@ up:
 #? down: Stop Docker container.
 down: build
 	@docker compose down
+
+############
+## FORMAT ##
+############
 
 fmt-a:
 	@$(APP_DIR) && npm run fmt
@@ -53,6 +73,10 @@ fmt-s:
 
 #? fmt: Format all files.
 fmt: fmt-a fmt-c fmt-s
+
+##########
+## HELP ##
+##########
 
 #? help: Get more info on make commands.
 help: Makefile
