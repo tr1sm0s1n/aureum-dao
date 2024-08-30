@@ -19,7 +19,7 @@ contract:
 	@$(CONTRACT_DIR) && cargo concordium build --out dist/module.wasm.v1 --schema-out dist/schema.bin
 
 #? test: Test contract.
-test:
+test: contract
 	@$(CONTRACT_DIR) && cargo concordium test
 
 #? app: Build client application.
@@ -39,7 +39,7 @@ up:
 	@docker compose up --build
 
 #? down: Stop Docker container.
-run: build
+down: build
 	@docker compose down
 
 fmt-a:
