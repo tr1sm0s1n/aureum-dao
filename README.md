@@ -15,7 +15,7 @@ Welcome to the AUREUM, a Charity DAO DApp, built on the Concordium blockchain (c
 
 ## Introduction
 
-AUREUM leverages the power of blockchain technology to ensure that charitable funds are collected, managed, and distributed in a transparent and trustless manner. By using a DAO, we eliminate the need for intermediaries, reducing overhead costs and ensuring that donations reach those in need more efficiently.
+AUREUM leverages the power of blockchain technology to ensure that charitable funds are collected, managed, and distributed in a transparent and trustless manner. By using a DAO, we eliminate the need for intermediaries, reduce overhead costs, and ensure that donations reach those in need more efficiently.
 
 ## Features
 
@@ -25,33 +25,9 @@ AUREUM leverages the power of blockchain technology to ensure that charitable fu
 - **Secure**: Built on the Concordium blockchain, which provides strong privacy features and regulatory compliance.
 - **Automated Processes**: Smart contract automate the collection and distribution of funds.
 
-## Getting Started
-
-### Prerequisites
-
-Before you begin, ensure you have met the following requirements:
-
-- **Rust**
-- **Node.js**
-
-### Installation
-
-Clone the repository:
-
-```bash
-git clone https://github.com/tr1sm0s1n/aureum-dao.git
-cd aureum-dao
-```
-
-Install the necessary dependencies:
-
-```bash
-make install
-```
-
 ## Contributing
 
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+Contributions are what makes the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
 If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
 Don't forget to give the project a star! Thanks again!
