@@ -1,4 +1,4 @@
-import { detectConcordiumProvider } from '@concordium/browser-wallet-api-helpers'
+import { detectConcordiumProvider, SmartContractParameters, WalletApi } from '@concordium/browser-wallet-api-helpers'
 import {
   AccountTransactionType,
   CcdAmount,
@@ -14,6 +14,8 @@ import {
   deserializeReceiveReturnValue,
   toBuffer,
   SchemaVersion,
+  Address,
+  UpdateContractPayload,
 } from '@concordium/web-sdk'
 import {
   CONTRACT_INDEX,
@@ -138,10 +140,10 @@ async function checkConnectedToTestnet(client) {
 //     }
 // }
 export async function createProposal(
-  client,
-  description,
-  amount,
-  senderAddress,
+  client:WalletApi,
+  description:string,
+  amount:string,
+  senderAddress:string,
 ) {
   const connectedToTestnet = await checkConnectedToTestnet(client)
   if (connectedToTestnet) {
@@ -149,22 +151,21 @@ export async function createProposal(
       senderAddress,
       AccountTransactionType.Update,
       {
+        maxContractExecutionEnergy: BigInt(30000),
         amount: CcdAmount.fromMicroCcd(BigInt(0)),
         address: { index: BigInt(CONTRACT_INDEX), subindex: BigInt(0) },
         receiveName: 'DAO.create_proposal',
-        maxContractExecutionEnergy: BigInt(30000),
-      },
+      } as unknown as UpdateContractPayload,
       {
         description: description,
         amount: CcdAmount.fromMicroCcd(BigInt(amount)),
-      },
+      } as unknown as SmartContractParameters,
       RAW_SCHEMA_BASE64,
     )
     console.log({ txHash })
     return txHash
   }
 }
-
 export async function renounceVotes(client, proposalID, votes, senderAddress) {
   const connectedToTestnet = await checkConnectedToTestnet(client)
   if (connectedToTestnet) {
