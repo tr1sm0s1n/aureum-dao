@@ -1,61 +1,27 @@
-import Slider from 'react-slick';
-import 'slick-carousel/slick/slick.css';
-import 'slick-carousel/slick/slick-theme.css';
+import React, { useContext, useEffect, useState } from 'react'
+import Slider from 'react-slick'
+import 'slick-carousel/slick/slick.css'
+import 'slick-carousel/slick/slick-theme.css'
+import Modal from './Modal'
+import { UserContext } from '../../App'
+import { getAllMembers, getAllProposals } from '../../utils/wallet'
 
-import Modal from './Modal';
-import { useState } from 'react';
+const Proposals = () => {
+  const ctx = useContext(UserContext)
+  const [proposals, setProposals] = useState([])
+  const [showModal, setShowModal] = useState(false)
+  const [power, setPower] = useState()
+  const [selectedData, setSelectedData] = useState(null)
 
-// Define TypeScript interfaces for your data
-interface Testimonial {
-  id: number;
-  name: string;
-  text: string;
-  status: 'Active' | 'Inactive';
-  amount: number;
-}
+  console.log('ppp', proposals)
+  console.log('pow', power)
 
-const TestimonialData: Testimonial[] = [
-  {
-    id: 1,
-    name: "Dilshad",
-    text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque reiciendis inventore iste ratione ex alias quis magni at optio",
-    status: "Inactive",
-    amount: 2345,
-  },
-  {
-    id: 2,
-    name: "Sabir ali",
-    text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque reiciendis inventore iste ratione ex alias quis magni at optio",
-    status: "Active",
-    amount: 34567,
-  },
-  {
-    id: 3,
-    name: "Dipankar kumar",
-    text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque reiciendis inventore iste ratione ex alias quis magni at optio",
-    status: "Inactive",
-    amount: 8765,
-  },
-  {
-    id: 5,
-    name: "Satya Narayan",
-    text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque reiciendis inventore iste ratione ex alias quis magni at optio",
-    status: "Active",
-    amount: 0,
-  },
-];
+  const handleCardClick = (data) => {
+    setSelectedData(data)
+    setShowModal(true)
+  }
 
-const Proposals: React.FC = () => {
-
-  const [showModal, setShowModal] = useState<boolean>(false);
-  const [selectedData, setSelectedData] = useState<Testimonial | null>(null);
-
-  const handleCardClick = (data: Testimonial) => {
-    setSelectedData(data);
-    setShowModal(true);
-  };
-
-  const settings = {
+  var settings = {
     dots: true,
     arrows: false,
     infinite: true,
@@ -91,7 +57,17 @@ const Proposals: React.FC = () => {
         },
       },
     ],
-  };
+  }
+
+  useEffect(() => {
+    getAllProposals(ctx.client!).then(setProposals).catch(console.error)
+    getAllMembers(ctx.client!)
+      .then((members) => {
+        let memberMap = new Map(members)
+        setPower(memberMap.get(ctx.user))
+      })
+      .catch(console.error)
+  }, [])
 
   return (
     <>
@@ -109,8 +85,8 @@ const Proposals: React.FC = () => {
 
           <div data-aos="zoom-in">
             <Slider {...settings}>
-              {TestimonialData.map((data) => (
-                <div className="my-6" key={data.id}>
+              {proposals.map((data) => (
+                <div className="my-6" key={data[0]}>
                   <div
                     onClick={() => handleCardClick(data)}
                     className="flex flex-col gap-4 shadow-lg py-8 px-6 mx-4 rounded-xl bg-primary/10 relative cursor-pointer transition duration-300 hover:bg-primary/30"
@@ -118,12 +94,12 @@ const Proposals: React.FC = () => {
                     <div className="flex items-center divide-x-2 divide-gray-500 dark:divide-gray-700">
                       <div className="pr-3 text-lg font-bold text-indigo-400">
                         <span className="text-indigo-600">
-                          {data.name}
+                          {data[0].toString()}
                         </span>
                       </div>
                       <div className="pl-3 text-lg font-bold ">
                         <h1 className="text-xl font-bold">
-                          {data.id}
+                          {data[1].proposer.slice(0, 6)}
                         </h1>
                       </div>
                     </div>
@@ -131,23 +107,24 @@ const Proposals: React.FC = () => {
                     <div className="flex flex-col items-center gap-4">
                       <div className="space-y-3">
                         <p className="text-sm text-gray-500">
-                          {data.text}
+                          {data[1].description}
                         </p>
                       </div>
                     </div>
                     <div className="flex items-center divide-x-2 divide-gray-500 dark:divide-gray-700">
                       <div
-                        className={`pr-3 font-bold ${data.status === "Active"
-                          ? "text-green-500"
-                          : "text-red-500"
-                          }`}
+                        className={`pr-3 text-lg font-bold ${
+                          Object.keys(data[1].status)[0] === 'Active'
+                            ? 'text-green-500'
+                            : 'text-red-500'
+                        }`}
                       >
-                        {data.status}
+                        {Object.keys(data[1].status)[0]}
                       </div>
                       <div className="pl-3 text-lg font-bold text-indigo-400">
                         Amount:{' '}
                         <span className="text-indigo-600">
-                          {data.amount}
+                          {data[1].amount}
                         </span>
                       </div>
                     </div>
@@ -165,11 +142,12 @@ const Proposals: React.FC = () => {
             showModal={showModal}
             setShowModal={setShowModal}
             data={selectedData}
+            power={power}
           />
         )}
       </div>
     </>
-  );
-};
+  )
+}
 
-export default Proposals;
+export default Proposals

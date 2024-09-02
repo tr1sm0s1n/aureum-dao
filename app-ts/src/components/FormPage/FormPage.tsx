@@ -1,104 +1,99 @@
-import { ChangeEvent, FormEvent, useState } from "react";
-import BannerImg from "../../assets/form.png";
-import { MdAttachMoney } from "react-icons/md";
-import { ImParagraphCenter } from "react-icons/im";
+import { useContext, useState } from 'react'
+import BannerImg from '../../assets/form.png'
+import { MdAttachMoney } from 'react-icons/md'
+import { ImParagraphCenter } from 'react-icons/im'
 import BgImg from '../../assets/website/bg.jpg'
+import { UserContext } from '../../App'
+import { createProposal, insertFunds } from '../../utils/wallet'
 
-// Define interfaces for form values and errors
-interface Form1Values {
-  amount: string;
-  description: string;
-}
-
-interface Form1Errors {
-  amount: string;
-  description: string;
-}
-
-interface Form2Values {
-  amount: string;
-}
-
-interface Form2Errors {
-  amount: string;
-}
-
-// Background image style
-const bgImage: React.CSSProperties = {
+const bgImage = {
   backgroundImage: `url(${BgImg})`,
-  backgroundColor: "#6366FF",
-  backgroundPosition: "center",
-  backgroundRepeat: "no-repeat",
-  backgroundSize: "cover",
-  height: "100%",
-  width: "100%",
-};
+  backgroundColor: '#6366FF',
+  backgroundPosition: 'center',
+  backgroundRepeat: 'no-repeat',
+  backgroundSize: 'cover',
+  height: '100%',
+  width: '100%',
+}
 
-const FormPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<"form1" | "form2">("form1");
-  const [form1Values, setForm1Values] = useState<Form1Values>({
-    amount: "",
-    description: "",
-  });
-  const [form2Values, setForm2Values] = useState<Form2Values>({ amount: "" });
-  const [form1Errors, setForm1Errors] = useState<Form1Errors>({
-    amount: "",
-    description: "",
-  });
-  const [form2Errors, setForm2Errors] = useState<Form2Errors>({ amount: "" });
+const FormPage = () => {
+  const ctx = useContext(UserContext)
 
-  const handleForm1Change = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setForm1Values({ ...form1Values, [name]: value });
-  };
+  const [activeTab, setActiveTab] = useState('form1')
+  const [form1Values, setForm1Values] = useState({
+    amount: 0,
+    description: '',
+  })
+  const [form2Values, setForm2Values] = useState({ amount: 0 })
+  const [form1Errors, setForm1Errors] = useState({
+    amount: '',
+    description: '',
+  })
+  const [form2Errors, setForm2Errors] = useState({ amount: '' })
 
-  const handleForm2Change = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setForm2Values({ ...form2Values, [name]: value });
-  };
+  const handleForm1Change = (e: any) => {
+    const { name, value } = e.target
+    setForm1Values({ ...form1Values, [name]: value })
+  }
 
-  const validateForm1 = (): boolean => {
-    const errors: Form1Errors = { amount: "", description: "" };
+  const handleForm2Change = (e: any) => {
+    const { name, value } = e.target
+    setForm2Values({ ...form2Values, [name]: value })
+  }
+
+  const validateForm1 = () => {
+    const errors = { amount: '', description: '' }
     if (!form1Values.amount) {
-      errors.amount = "Amount is required";
-    } else if (isNaN(Number(form1Values.amount))) {
-      errors.amount = "Amount must be a number";
+      errors.amount = 'Amount is required'
+    } else if (isNaN(form1Values.amount)) {
+      errors.amount = 'Amount must be a number'
     }
     if (!form1Values.description) {
-      errors.description = "Description is required";
+      errors.description = 'Description is required'
     }
-    setForm1Errors(errors);
-    return Object.values(errors).every((error) => !error);
-  };
+    setForm1Errors(errors)
+    return Object.values(errors).every((error) => !error)
+  }
 
-  const validateForm2 = (): boolean => {
-    const errors: Form2Errors = { amount: "" };
+  const validateForm2 = () => {
+    const errors = { amount: '' }
     if (!form2Values.amount) {
-      errors.amount = "Amount is required";
-    } else if (isNaN(Number(form2Values.amount))) {
-      errors.amount = "Amount must be a number";
+      errors.amount = 'Amount is required'
+    } else if (isNaN(form2Values.amount)) {
+      errors.amount = 'Amount must be a number'
     }
-    setForm2Errors(errors);
-    return Object.values(errors).every((error) => !error);
-  };
+    setForm2Errors(errors)
+    return Object.values(errors).every((error) => !error)
+  }
 
-  const handleForm1Submit = (e: FormEvent) => {
-    e.preventDefault();
+  const handleForm1Submit = async (e: any) => {
+    e.preventDefault()
     if (validateForm1()) {
-      console.log("Form 1 submitted", form1Values);
+      console.log('Form 1 submitted', form1Values)
+      let res = await createProposal(
+        ctx.client!,
+        form1Values.description,
+        form1Values.amount,
+        ctx.user
+      )
+      console.log(res)
     }
-  };
+  }
 
-  const handleForm2Submit = (e: FormEvent) => {
-    e.preventDefault();
+  const handleForm2Submit = async (e: any) => {
+    e.preventDefault()
     if (validateForm2()) {
-      console.log("Form 2 submitted", form2Values);
+      // Handle form submission (e.g., send data to server)
+      console.log('Form 2 submitted', form2Values)
+
+      let res = await insertFunds(ctx.client!, form2Values.amount, ctx.user)
+      console.log(res)
     }
-  };
+  }
 
   return (
     <>
-      <span id="about"></span>
+      <span id="form"></span>
       <div style={bgImage}>
         <div className="min-h-[600px] flex justify-center items-center py-12 sm:py-0">
           <div className="container">
@@ -131,25 +126,33 @@ const FormPage: React.FC = () => {
                   >
                     <li className="mr-2" role="presentation">
                       <button
-                        className={`inline-block py-4 px-4 text-xl font-bold text-center border-b-2 ${activeTab === 'form1' ? 'text-brandDark border-primary' : 'text-gray-400 border-transparent hover:text-primary hover:border-secondary'}`}
-                        onClick={() => setActiveTab("form1")}
+                        className={`inline-block py-4 px-4 text-xl font-bold text-center border-b-2 ${
+                          activeTab === 'form1'
+                            ? 'text-brandDark border-primary'
+                            : 'text-gray-400 border-transparent hover:text-primary hover:border-secondary'
+                        }`}
+                        onClick={() => setActiveTab('form1')}
                         role="tab"
                       >
-                        Form 1
+                        Create Proposal
                       </button>
                     </li>
                     <li className="mr-2" role="presentation">
                       <button
-                        className={`inline-block py-4 px-4 text-xl font-bold text-center border-b-2 ${activeTab === 'form2' ? 'text-brandDark border-primary' : 'text-gray-400 border-transparent hover:text-primary hover:border-secondary'}`}
-                        onClick={() => setActiveTab("form2")}
+                        className={`inline-block py-4 px-4 text-md font-medium text-center border-b-2 ${
+                          activeTab === 'form2'
+                            ? 'text-gray-600 border-gray-300'
+                            : 'text-gray-500 border-transparent hover:text-gray-600 hover:border-gray-300'
+                        }`}
+                        onClick={() => setActiveTab('form2')}
                         role="tab"
                       >
-                        Form 2
+                        Deposit Amount
                       </button>
                     </li>
                   </ul>
                 </div>
-                {activeTab === "form1" && (
+                {activeTab === 'form1' && (
                   <>
                     <p
                       data-aos="fade-up"
@@ -169,7 +172,7 @@ const FormPage: React.FC = () => {
                             <MdAttachMoney className="text-4xl h-10 w-10 shadow-sm p-3 rounded-full bg-red-100" />
                             <div className="relative z-0 w-full mb-5 group">
                               <input
-                                type="text"
+                                type="number"
                                 name="amount"
                                 value={form1Values.amount}
                                 onChange={handleForm1Change}
@@ -237,7 +240,7 @@ const FormPage: React.FC = () => {
                     </form>
                   </>
                 )}
-                {activeTab === "form2" && (
+                {activeTab === 'form2' && (
                   <>
                     <p
                       data-aos="fade-up"
@@ -257,7 +260,7 @@ const FormPage: React.FC = () => {
                             <MdAttachMoney className="text-4xl h-10 w-10 shadow-sm p-3 rounded-full bg-orange-100" />
                             <div className="relative z-0 w-full mb-5 group">
                               <input
-                                type="text"
+                                type="number"
                                 name="amount"
                                 value={form2Values.amount}
                                 onChange={handleForm2Change}
@@ -302,7 +305,7 @@ const FormPage: React.FC = () => {
         </div>
       </div>
     </>
-  );
-};
+  )
+}
 
-export default FormPage;
+export default FormPage

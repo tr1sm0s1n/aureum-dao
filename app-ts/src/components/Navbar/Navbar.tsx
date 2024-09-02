@@ -1,20 +1,20 @@
 const Menu = [
   {
     id: 1,
-    name: "Home",
-    link: "/#",
+    name: 'Home',
+    link: '/#',
   },
   {
     id: 2,
-    name: "Form",
-    link: "/#services",
+    name: 'Form',
+    link: '/#form',
   },
   {
     id: 3,
-    name: "Proposals",
-    link: "/#about",
+    name: 'Proposals',
+    link: '/#proposals',
   },
-];
+]
 const Navbar = () => {
   return (
     <>
@@ -55,7 +55,7 @@ const Navbar = () => {
         </div>
       </div>
     </>
-  );
-};
+  )
+}
 
-export default Navbar;
+export default Navbar

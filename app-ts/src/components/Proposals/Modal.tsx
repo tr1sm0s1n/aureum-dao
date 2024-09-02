@@ -1,36 +1,24 @@
-import { useState, MouseEvent } from "react";
-import { motion } from "framer-motion";
-// import { MdClose } from "react-icons/md";
+import { useContext, useState } from 'react'
+import { motion } from 'framer-motion'
+import { MdClose } from 'react-icons/md'
+import { UserContext } from '../../App'
+import { renounceVotes, voteForProposal, withdrawFunds } from '../../utils/wallet'
 
-// Define types for the data prop
-interface ModalData {
- status: 'Active' | 'Inactive';
-  name: string;
-  id: number;
-  text: string;
-  amount: number;
-}
 
-// Define types for the Modal component props
-interface ModalProps {
-  showModal: boolean;
-  setShowModal: (show: boolean) => void;
-  data: ModalData;
-}
-
-const Modal: React.FC<ModalProps> = ({ showModal, setShowModal, data }) => {
-  const [voteNumber, setVoteNumber] = useState<string>("");
-  const [voteError, setVoteError] = useState<string>("");
+const Modal = ({ showModal, setShowModal, data, power }) => {
+  const { user, client } = useContext(UserContext)
+  const [voteNumber, setVoteNumber] = useState(0)
+  const [voteError, setVoteError] = useState('')
 
   const modalVariants = {
     hidden: {
       opacity: 0,
-      y: "-100%",
+      y: '-100%',
       scale: 1.5,
     },
     visible: {
       opacity: 1,
-      y: "0",
+      y: '0',
       scale: 1,
       transition: {
         duration: 0.3,
@@ -38,59 +26,64 @@ const Modal: React.FC<ModalProps> = ({ showModal, setShowModal, data }) => {
     },
     exit: {
       opacity: 0,
-      y: "-100%",
+      y: '-100%',
       scale: 1.5,
       transition: {
         duration: 0.3,
       },
     },
-  };
+  }
 
-  const handleOverlayClick = (e: MouseEvent<HTMLDivElement>) => {
+  const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget) {
-      setShowModal(false);
+      setShowModal(false)
     }
-  };
+  }
 
-  const handleVote = () => {
-    if (!voteNumber) {
-      setVoteError("Please enter a number.");
+  const handleVote = async () => {
+    if (voteNumber > parseInt(power)) {
+      setVoteError('Please enter a valid number.')
     } else {
-      setVoteError("");
-      alert("Vote submitted successfully!");
+      setVoteError('')
+      console.log(voteNumber)
+      let res = await voteForProposal(client!, data[0], voteNumber, user)
+      console.log(res)
+      alert('Vote submitted successfully!')
       // Handle vote submission logic here
     }
-  };
+  }
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setVoteNumber(e.target.value);
+  const handleRenounce = async (renounce) => {
+    console.log(renounce)
+    let res = await renounceVotes(client!, data[0], renounce, user)
+    console.log(res)
+  }
+
+  const handleInputChange = (e) => {
+    setVoteNumber(e.target.value)
     if (e.target.value) {
-      setVoteError("");
+      setVoteError('')
     }
-  };
+  }
 
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const itemsPerPage = 5;
+  const withdraw = async () => {
+    let res = await withdrawFunds(client!, data[0], user)
+    console.log(res)
+  }
 
-  // Sample data
-  const tableData = [
-    { Address: 'Laptop', amount: '$999' },
-    { Address: 'Smartphone', amount: '$699', },
-    { Address: 'Headphones', amount: '$199', },
-    { Address: 'Keyboard', amount: '$89', },
-    { Address: 'Monitor', amount: '$299', },
-    { Address: 'Mouse', amount: '$49', },
-    { Address: 'Webcam', amount: '$89', },
-    { Address: 'Printer', amount: '$199' },
-  ];
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 5
 
-  const totalPages = Math.ceil(tableData.length / itemsPerPage);
-  const paginatedData = tableData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const totalPages = Math.ceil(data[1].contributers.length / itemsPerPage)
+  const paginatedData = data[1].contributers.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage,
+  )
 
-  const handlePageChange = (page: number) => {
-    if (page < 1 || page > totalPages) return; // Prevent going out of bounds
-    setCurrentPage(page);
-  };
+  const handlePageChange = (page) => {
+    if (page < 1 || page > totalPages) return // Prevent going out of bounds
+    setCurrentPage(page)
+  }
 
   return (
     <>
@@ -106,15 +99,19 @@ const Modal: React.FC<ModalProps> = ({ showModal, setShowModal, data }) => {
             variants={modalVariants}
             className="bg-white rounded-lg shadow-lg p-6 mx-4 md:mx-8 lg:mx-12 max-w-full sm:max-w-xl md:max-w-lg lg:max-w-4xl"
           >
-            {/* <button
+            <button
               onClick={() => setShowModal(false)}
               className="absolute -top-3 -right-3 bg-red-500 hover:bg-red-600 text-2xl w-10 h-10 rounded-full focus:outline-none text-white"
             >
               <MdClose className="m-auto" />
-            </button> */}
+            </button>
             <div className="px-4 py-3 border-b flex items-center justify-between">
               <div className="flex items-center pr-3 text-lg font-bold">
-                <span className="text-2xl font-bold">{data.name}</span>
+                <span
+                  className={`${Object.keys(data[1].status)[0] === 'Active' ? 'text-green-500' : 'text-red-500'}`}
+                >
+                  {data[1].proposer.substring(0, 6)}
+                </span>
               </div>
               <div className="flex items-center pl-3 text-lg font-bold text-indigo-400">
                 <h2 className="text-2xl font-semibold font-cursive">
@@ -122,76 +119,113 @@ const Modal: React.FC<ModalProps> = ({ showModal, setShowModal, data }) => {
                 </h2>
               </div>
             </div>
-
-            <div className="w-full p-3">{data.text}</div>
+            <div className="w-full p-3">{data[1].description}</div>
             <div className="px-4 py-3 border-b flex items-center justify-between divide-x-2 divide-gray-400">
               <div className="flex items-center pr-3 text-lg font-bold">
-                <span className={`${data.status === "Active" ? "text-green-500" : "text-red-500"}`}>{data.status}</span>
+                <span
+                  className={`${Object.keys(data[1].status)[0] === 'Active' ? 'text-green-500' : 'text-red-500'}`}
+                >
+                  {Object.keys(data[1].status)[0]}
+                </span>
               </div>
               <div className="flex items-center pl-3 text-lg font-bold text-indigo-400">
-                Amount: <span className="text-indigo-600">{data.amount}</span>
+                Amount:{' '}
+                <span className="text-indigo-600">{data[1].amount}</span>
               </div>
-              <button
-                onClick={() => alert("Withdraw clicked")}
-                className="ml-auto bg-primary border-primary hover:scale-105 duration-200 text-white px-4 py-2 rounded-full"
-              >
-                Withdraw
-              </button>
-            </div>
-            <div className="w-full p-3 px-4 py-3 border-b border-gray-200 text-center">
-              <span className="text-orange-400 font-semibold text-xl">You can Vote Here</span>
-              <div className="mt-4 flex items-center justify-center space-x-4">
-                <div className="flex flex-col items-center">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Enter a number:
-                  </label>
-                  <input
-                    type="number"
-                    value={voteNumber}
-                    onChange={handleInputChange}
-                    className="mt-1 block w-48 p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  />
-                  {voteError && <p className="text-red-500 text-sm mt-1">{voteError}</p>}
-                </div>
-                <div className="flex flex-col items-center">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Disabled field:
-                  </label>
-                  <input
-                    type="text"
-                    value="Disabled field"
-                    disabled
-                    className="mt-1 block w-48 p-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 sm:text-sm"
-                  />
-                </div>
-                <div className="flex flex-col items-center">
+
+              {user == data[1].proposer &&
+                Object.keys(data[1].status)[0] === 'Approved' && (
                   <button
-                    onClick={handleVote}
-                    className="mt-6 bg-primary border-2 border-primary hover:scale-105 duration-200 text-white px-4 py-2 rounded-full "
+                    onClick={withdraw}
+                    className="ml-auto bg-primary border-primary hover:scale-105 duration-200 text-white px-4 py-2 rounded-full"
                   >
-                    Vote
+                    Withdraw
                   </button>
+                )}
+            </div>
+            {Object.keys(data[1].status)[0] === 'Active' && (
+              <div className="w-full p-3 px-4 py-3 border-b border-gray-200 text-center">
+                <span className="text-orange-400 font-semibold text-xl">
+                  You can Vote Here
+                </span>
+                <div className="mt-4 flex items-center justify-center space-x-4">
+                  <div className="flex flex-col items-center">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Votes to give:
+                    </label>
+                    <input
+                      type="number"
+                      value={voteNumber}
+                      max={parseInt(power)}
+                      onChange={handleInputChange}
+                      className="mt-1 block w-48 p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    />
+                    {voteError && (
+                      <p className="text-red-500 text-sm mt-1">{voteError}</p>
+                    )}
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Votes to spare:
+                    </label>
+                    <input
+                      type="number"
+                      value={parseInt(power)}
+                      disabled
+                      className="mt-1 block w-48 p-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 sm:text-sm"
+                    />
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <button
+                      onClick={handleVote}
+                      className="mt-6 bg-primary border-2 border-primary hover:scale-105 duration-200 text-white px-4 py-2 rounded-full "
+                    >
+                      Vote
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             <div className="relative overflow-x-auto pt-3 shadow-md sm:rounded-lg">
               <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                 <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                   <tr>
-                    <th scope="col" className="px-6 py-3">Address</th>
-                    <th scope="col" className="px-6 py-3">Amount</th>
-                    <th scope="col" className="px-6 py-3">Action</th>
+                    <th scope="col" className="px-6 py-3">
+                      Address
+                    </th>
+                    <th scope="col" className="px-6 py-3">
+                      Amount
+                    </th>
+                    <th scope="col" className="px-6 py-3">
+                      Action
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {paginatedData.map((item, index) => (
-                    <tr key={index} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                      <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{item.Address}</th>
-                      <td className="px-6 py-4">{item.amount}</td>
-                      <td className="px-6 py-4">
-                        <button className="bg-primary border-2 border-primary hover:scale-105 duration-200 text-white py-2 px-4 rounded-full">Button</button>
-                      </td>
+                    <tr
+                      key={index}
+                      className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                    >
+                      <th
+                        scope="row"
+                        className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                      >
+                        {item[0]}
+                      </th>
+                      <td className="px-6 py-4">{item[1].toString()}</td>
+                      {user == item[0] &&
+                        Object.keys(data[1].status)[0] === 'Active' && (
+                          <td className="px-6 py-4">
+                            <button
+                              onClick={() => handleRenounce(item[1])}
+                              className="bg-primary border-2 border-primary hover:scale-105 duration-200 text-white py-2 px-4 rounded-full"
+                            >
+                              Renounce
+                            </button>
+                          </td>
+                        )}
                     </tr>
                   ))}
                 </tbody>
@@ -228,7 +262,7 @@ const Modal: React.FC<ModalProps> = ({ showModal, setShowModal, data }) => {
         </div>
       ) : null}
     </>
-  );
-};
+  )
+}
 
-export default Modal;
+export default Modal
