@@ -3,12 +3,14 @@ import { motion } from 'framer-motion'
 import { MdClose } from 'react-icons/md'
 import { UserContext } from '../../App'
 import { renounceVotes, voteForProposal, withdrawFunds } from '../../utils/wallet'
+import TransactionAlert from '../popup/popup'
 
 
 const Modal = ({ showModal, setShowModal, data, power }) => {
   const { user, client } = useContext(UserContext)
   const [voteNumber, setVoteNumber] = useState(0)
   const [voteError, setVoteError] = useState('')
+  const [txHash, setTxHash] = useState<string | undefined>(undefined);
 
   const modalVariants = {
     hidden: {
@@ -40,6 +42,8 @@ const Modal = ({ showModal, setShowModal, data, power }) => {
     }
   }
 
+  
+
   const handleVote = async () => {
     if (voteNumber > parseInt(power)) {
       setVoteError('Please enter a valid number.')
@@ -47,6 +51,7 @@ const Modal = ({ showModal, setShowModal, data, power }) => {
       setVoteError('')
       console.log(voteNumber)
       let res = await voteForProposal(client!, data[0], voteNumber, user)
+      setTxHash(res)
       console.log(res)
       alert('Vote submitted successfully!')
       // Handle vote submission logic here
@@ -56,7 +61,8 @@ const Modal = ({ showModal, setShowModal, data, power }) => {
   const handleRenounce = async (renounce) => {
     console.log(renounce)
     let res = await renounceVotes(client!, data[0], renounce, user)
-    console.log(res)
+    setTxHash(res);  // Set the transaction hash state here
+    console.log(res);
   }
 
   const handleInputChange = (e) => {
@@ -68,7 +74,8 @@ const Modal = ({ showModal, setShowModal, data, power }) => {
 
   const withdraw = async () => {
     let res = await withdrawFunds(client!, data[0], user)
-    console.log(res)
+    setTxHash(res);  // Set the transaction hash state here
+    console.log(res);
   }
 
   const [currentPage, setCurrentPage] = useState(1)
@@ -140,6 +147,7 @@ const Modal = ({ showModal, setShowModal, data, power }) => {
                     className="ml-auto bg-primary border-primary hover:scale-105 duration-200 text-white px-4 py-2 rounded-full"
                   >
                     Withdraw
+                    <TransactionAlert txHash={txHash} />
                   </button>
                 )}
             </div>
@@ -182,6 +190,7 @@ const Modal = ({ showModal, setShowModal, data, power }) => {
                     >
                       Vote
                     </button>
+                    <TransactionAlert txHash={txHash} />
                   </div>
                 </div>
               </div>
@@ -224,6 +233,7 @@ const Modal = ({ showModal, setShowModal, data, power }) => {
                             >
                               Renounce
                             </button>
+                            <TransactionAlert txHash={txHash} />
                           </td>
                         )}
                     </tr>

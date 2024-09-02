@@ -5,6 +5,7 @@ import { ImParagraphCenter } from 'react-icons/im'
 import BgImg from '../../assets/website/bg.jpg'
 import { UserContext } from '../../App'
 import { createProposal, insertFunds } from '../../utils/wallet'
+import TransactionAlert from '../popup/popup.tsx'
 
 const bgImage = {
   backgroundImage: `url(${BgImg})`,
@@ -66,6 +67,8 @@ const FormPage = () => {
     return Object.values(errors).every((error) => !error)
   }
 
+  const [txHash, setTxHash] = useState<string | undefined>(undefined);
+
   const handleForm1Submit = async (e: any) => {
     e.preventDefault()
     if (validateForm1()) {
@@ -76,9 +79,16 @@ const FormPage = () => {
         form1Values.amount,
         ctx.user
       )
-      console.log(res)
+      setTxHash(res);  // Set the transaction hash state here
+      console.log(res);
     }
   }
+
+  // useEffect(() => {
+  //   if (txHash) {
+  //     alert(`Transaction successful! Hash: ${txHash}`);
+  //   }
+  // }, [txHash]);
 
   const handleForm2Submit = async (e: any) => {
     e.preventDefault()
@@ -87,7 +97,8 @@ const FormPage = () => {
       console.log('Form 2 submitted', form2Values)
 
       let res = await insertFunds(ctx.client!, form2Values.amount, ctx.user)
-      console.log(res)
+      setTxHash(res);  // Set the transaction hash state here
+      console.log(res);
     }
   }
 
@@ -238,6 +249,7 @@ const FormPage = () => {
                         </div>
                       </div>
                     </form>
+                    <TransactionAlert txHash={txHash} />
                   </>
                 )}
                 {activeTab === 'form2' && (
@@ -297,6 +309,7 @@ const FormPage = () => {
                         </div>
                       </div>
                     </form>
+                    <TransactionAlert txHash={txHash} />
                   </>
                 )}
               </div>
