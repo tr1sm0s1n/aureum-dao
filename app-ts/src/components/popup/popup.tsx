@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import swal from 'sweetalert';
 
 interface TransactionAlertProps {
     txHash: string | undefined;
@@ -7,7 +8,8 @@ interface TransactionAlertProps {
   const TransactionAlert: React.FC<TransactionAlertProps> = ({ txHash }) => {
     useEffect(() => {
       if (txHash) {
-        alert(`Transaction successful! Hash: ${txHash}`);
+        // alert(`Transaction successful! Hash: ${txHash}`);
+        swal("Transaction successful!", `Hash: ${txHash}`, "success");
       }
     }, [txHash]);
   
