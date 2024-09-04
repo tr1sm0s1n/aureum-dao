@@ -67,7 +67,7 @@ const Proposals = () => {
         setPower(memberMap.get(ctx.user))
       })
       .catch(console.error)
-  }, [])
+  }, [proposals,power])
 
   return (
     <>
