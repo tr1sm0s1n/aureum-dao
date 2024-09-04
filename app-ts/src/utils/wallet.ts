@@ -15,6 +15,9 @@ import {
   ContractAddress,
   ReceiveName,
   BlockHash,
+  TransactionHash,
+  TransactionSummaryType,
+  TransactionKindString,
 } from '@concordium/web-sdk'
 import {
   CONTRACT_INDEX,

@@ -147,7 +147,7 @@ const Modal = ({ showModal, setShowModal, data, power }) => {
                     className="ml-auto bg-primary border-primary hover:scale-105 duration-200 text-white px-4 py-2 rounded-full"
                   >
                     Withdraw
-                    <TransactionAlert txHash={txHash} />
+                    <TransactionAlert txHash={txHash} client={client} />
                   </button>
                 )}
             </div>
@@ -190,7 +190,7 @@ const Modal = ({ showModal, setShowModal, data, power }) => {
                     >
                       Vote
                     </button>
-                    <TransactionAlert txHash={txHash} />
+                    <TransactionAlert txHash={txHash} client={client} />
                   </div>
                 </div>
               </div>
@@ -233,7 +233,7 @@ const Modal = ({ showModal, setShowModal, data, power }) => {
                             >
                               Renounce
                             </button>
-                            <TransactionAlert txHash={txHash} />
+                            <TransactionAlert txHash={txHash} client={client} />
                           </td>
                         )}
                     </tr>

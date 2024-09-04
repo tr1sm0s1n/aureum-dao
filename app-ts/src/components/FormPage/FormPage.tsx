@@ -249,7 +249,7 @@ const FormPage = () => {
                         </div>
                       </div>
                     </form>
-                    <TransactionAlert txHash={txHash} />
+                    <TransactionAlert txHash={txHash} client={ctx.client} />
                   </>
                 )}
                 {activeTab === 'form2' && (
@@ -309,7 +309,7 @@ const FormPage = () => {
                         </div>
                       </div>
                     </form>
-                    <TransactionAlert txHash={txHash} />
+                    <TransactionAlert txHash={txHash} client={ctx.client} />
                   </>
                 )}
               </div>
