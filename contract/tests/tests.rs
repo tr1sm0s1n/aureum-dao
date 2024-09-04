@@ -281,6 +281,41 @@ fn test_authorized_vote() {
         )
         .expect("Update succeeds with new insert");
 
+    chain
+        .contract_update(
+            SIGNER,
+            ACC_ADDR_OTHER,
+            Address::Account(ACC_ADDR_OTHER),
+            Energy::from(10_000),
+            UpdateContractPayload {
+                amount: insert_amount,
+                address: init.contract_address,
+                receive_name: OwnedReceiveName::new_unchecked("DAO.insert".to_string()),
+                message: OwnedParameter::empty(),
+            },
+        )
+        .expect("Update succeeds with new insert");
+
+    let invoke = chain
+        .contract_invoke(
+            ACC_ADDR_OWNER,
+            Address::Account(ACC_ADDR_OWNER),
+            Energy::from(10_000),
+            UpdateContractPayload {
+                amount: Amount::zero(),
+                receive_name: OwnedReceiveName::new_unchecked("DAO.all_members".to_string()),
+                address: init.contract_address,
+                message: OwnedParameter::empty(),
+            },
+        )
+        .expect("Fetch all members");
+
+    let return_value: Vec<(AccountAddress, u64)> =
+        invoke.parse_return_value().expect("Members return value");
+    let expected_value = vec![(ACC_ADDR_OWNER, 10_000_000), (ACC_ADDR_OTHER, 10_000_000)];
+
+    assert_eq!(return_value, expected_value);
+
     let input = ProposalInput {
         description: "Kerala Flood Relief".to_string(),
         amount: Amount { micro_ccd: 100_000 },
