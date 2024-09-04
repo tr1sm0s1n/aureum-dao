@@ -150,10 +150,10 @@ fn dao_vote(
     let voter = ctx.invoker();
 
     if state.members.is_empty()
-        || state
+        || !state
             .members
             .iter()
-            .any(|m| m.0 != voter || m.1 == 0 || m.1 < input.votes)
+            .any(|m| m.0 == voter && m.1 > 0 && m.1 >= input.votes)
     {
         return Err(DAOError::Unauthorized.into());
     }
