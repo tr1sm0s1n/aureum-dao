@@ -18,7 +18,7 @@ const LandingPage = () => {
     getAllMembers(ctx.client!)
       .then((members: [string, bigint][]) => {
         let memberMap = new Map(members)
-        setPower(memberMap.get(ctx.user))
+        setPower(memberMap.get(ctx.user!))
       })
       .catch(console.error)
   }, [proposals, power])

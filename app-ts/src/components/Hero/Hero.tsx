@@ -1,15 +1,22 @@
-import { useState, useCallback, useEffect, useContext } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import ConfusedFacePng from '../../assets/confused_face.png'
 import FaceWithPeekingEyePng from '../../assets/face_with_peeking_eye.png'
 import { useNavigate } from 'react-router-dom'
-import { detectConcordiumProvider } from '@concordium/browser-wallet-api-helpers'
+import {
+  detectConcordiumProvider,
+  WalletApi,
+} from '@concordium/browser-wallet-api-helpers'
 import { authorize, getChallenge, getStatement } from '../../utils/verifier'
-// import { UserContext } from '../../App'
 
-const Hero = ({ user, setUser, setClient }) => {
+interface Props {
+  user: string | undefined
+  setUser: React.Dispatch<React.SetStateAction<string | undefined>>
+  setClient: React.Dispatch<React.SetStateAction<WalletApi | undefined>>
+}
+
+const Hero: React.FC<Props> = ({ user, setUser, setClient }) => {
   const [imageSrc, setImageSrc] = useState(ConfusedFacePng)
   const [verificationFailed, setVerificationFailed] = useState(false)
-  // const { user } = useContext(UserContext)
   const [authToken, setAuthToken] = useState()
   const navigate = useNavigate()
 
@@ -20,7 +27,9 @@ const Hero = ({ user, setUser, setClient }) => {
           setClient(provider)
           provider.requestAccounts()
         })
-        .then(setUser),
+        .then(() => {
+          setUser
+        }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   )

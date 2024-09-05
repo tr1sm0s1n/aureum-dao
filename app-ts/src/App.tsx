@@ -7,12 +7,12 @@ import LandingPage from './components/LandingPage/LandingPage'
 import { WalletApi } from '@concordium/browser-wallet-api-helpers'
 
 interface context {
-  user: string
+  user: string | undefined
   client: WalletApi | undefined
 }
 
 export const UserContext = createContext<context>({
-  user: '',
+  user: undefined,
   client: undefined,
 })
 
@@ -27,7 +27,7 @@ const App = () => {
     AOS.refresh()
   }, [])
 
-  const [user, setUser] = useState('')
+  const [user, setUser] = useState<string | undefined>()
   const [client, setClient] = useState<WalletApi>()
 
   return (
@@ -37,7 +37,9 @@ const App = () => {
           <Routes>
             <Route
               path="/"
-              element={<Hero user={user} setUser={setUser} setClient={setClient} />}
+              element={
+                <Hero user={user} setUser={setUser} setClient={setClient} />
+              }
             />
             <Route path="/dashboard" element={<LandingPage />} />
           </Routes>

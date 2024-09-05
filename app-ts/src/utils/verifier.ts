@@ -1,4 +1,3 @@
-import { Address } from '@concordium/web-sdk'
 import { VERIFIER_URL } from '../config/config'
 import { Challenge, ProofWithContext } from './types'
 
@@ -6,7 +5,7 @@ const verifier = VERIFIER_URL
 /**
  * Fetch a challenge from the backend
  */
-export async function getChallenge(accountAddress: Address) {
+export async function getChallenge(accountAddress: string) {
   const response = await fetch(
     `${verifier}/challenge?address=` + accountAddress,
     { method: 'get' }
