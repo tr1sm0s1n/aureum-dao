@@ -1,22 +1,23 @@
-import React, { useContext, useEffect, useState } from 'react'
+import { useState } from 'react'
 import Slider from 'react-slick'
 import 'slick-carousel/slick/slick.css'
 import 'slick-carousel/slick/slick-theme.css'
 import Modal from './Modal'
-import { UserContext } from '../../App'
-import { getAllMembers, getAllProposals } from '../../utils/wallet'
+import { ProposalArray, ProposalData } from '../../types'
 
-const Proposals = () => {
-  const ctx = useContext(UserContext)
-  const [proposals, setProposals] = useState([])
+interface Props {
+  proposals: ProposalArray
+  power: bigint | undefined
+}
+
+const Proposals: React.FC<Props> = ({ proposals, power }) => {
   const [showModal, setShowModal] = useState(false)
-  const [power, setPower] = useState()
-  const [selectedData, setSelectedData] = useState(null)
+  const [selectedData, setSelectedData] = useState<[bigint, ProposalData]>()
 
   console.log('ppp', proposals)
   console.log('pow', power)
 
-  const handleCardClick = (data) => {
+  const handleCardClick = (data: [bigint, ProposalData]) => {
     setSelectedData(data)
     setShowModal(true)
   }
@@ -58,16 +59,6 @@ const Proposals = () => {
       },
     ],
   }
-
-  useEffect(() => {
-    getAllProposals(ctx.client!).then(setProposals).catch(console.error)
-    getAllMembers(ctx.client!)
-      .then((members) => {
-        let memberMap = new Map(members)
-        setPower(memberMap.get(ctx.user))
-      })
-      .catch(console.error)
-  }, [proposals,power])
 
   return (
     <>
