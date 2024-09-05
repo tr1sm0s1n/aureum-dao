@@ -4,8 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "tsc -b && vite",
+    "build": "tsc -b && vite build",
     "fmt": "prettier . --write",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
@@ -37,6 +37,7 @@
     "postcss": "^8.4.31",
     "prettier": "^3.3.3",
     "tailwindcss": "^3.3.5",
+    "typescript": "^5.5.4",
     "vite": "^5.0.0"
   }
 }

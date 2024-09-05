@@ -1,4 +1,4 @@
-import { detectConcordiumProvider } from '@concordium/browser-wallet-api-helpers'
+import { detectConcordiumProvider, SmartContractParameters, WalletApi } from '@concordium/browser-wallet-api-helpers'
 import {
   AccountTransactionType,
   CcdAmount,
@@ -14,6 +14,8 @@ import {
   deserializeReceiveReturnValue,
   toBuffer,
   SchemaVersion,
+  Address,
+  UpdateContractPayload,
 } from '@concordium/web-sdk'
 import {
   CONTRACT_INDEX,
@@ -138,10 +140,10 @@ async function checkConnectedToTestnet(client) {
 //     }
 // }
 export async function createProposal(
-  client,
-  description,
-  amount,
-  senderAddress,
+  client: WalletApi,
+  description: string,
+  amount: string,
+  senderAddress: string,
 ) {
   const connectedToTestnet = await checkConnectedToTestnet(client)
   if (connectedToTestnet) {
@@ -149,23 +151,22 @@ export async function createProposal(
       senderAddress,
       AccountTransactionType.Update,
       {
+        maxContractExecutionEnergy: BigInt(30000),
         amount: CcdAmount.fromMicroCcd(BigInt(0)),
         address: { index: BigInt(CONTRACT_INDEX), subindex: BigInt(0) },
         receiveName: 'DAO.create_proposal',
-        maxContractExecutionEnergy: BigInt(30000),
-      },
+      } as unknown as UpdateContractPayload,
       {
         description: description,
         amount: CcdAmount.fromMicroCcd(BigInt(amount)),
-      },
+      } as unknown as SmartContractParameters,
       RAW_SCHEMA_BASE64,
     )
     console.log({ txHash })
     return txHash
   }
 }
-
-export async function renounceVotes(client, proposalID, votes, senderAddress) {
+export async function renounceVotes(client: WalletApi, proposalID: string, votes: string, senderAddress: string) {
   const connectedToTestnet = await checkConnectedToTestnet(client)
   if (connectedToTestnet) {
     const txHash = await client.sendTransaction(
@@ -176,11 +177,11 @@ export async function renounceVotes(client, proposalID, votes, senderAddress) {
         address: { index: BigInt(CONTRACT_INDEX), subindex: BigInt(0) },
         receiveName: 'DAO.renounce',
         maxContractExecutionEnergy: BigInt(30000),
-      },
+      } as unknown as UpdateContractPayload,
       {
         proposal_id: proposalID,
         votes: votes,
-      },
+      } as unknown as SmartContractParameters,
       RAW_SCHEMA_BASE64,
     )
     console.log({ txHash })
@@ -188,7 +189,7 @@ export async function renounceVotes(client, proposalID, votes, senderAddress) {
   }
 }
 
-export async function insertFunds(client, amount, senderAddress) {
+export async function insertFunds(client: WalletApi, amount: string, senderAddress: string) {
   const connectedToTestnet = await checkConnectedToTestnet(client)
   if (connectedToTestnet) {
     const txHash = await client.sendTransaction(
@@ -199,7 +200,7 @@ export async function insertFunds(client, amount, senderAddress) {
         address: { index: BigInt(CONTRACT_INDEX), subindex: BigInt(0) },
         receiveName: 'DAO.insert',
         maxContractExecutionEnergy: BigInt(30000),
-      }, //Only sending funds no parameters involved.
+      } as unknown as UpdateContractPayload, //Only sending funds no parameters involved.
     )
     console.log({ txHash })
     return txHash
@@ -207,10 +208,10 @@ export async function insertFunds(client, amount, senderAddress) {
 }
 
 export async function voteForProposal(
-  client,
-  proposalID,
-  vote_decision,
-  senderAddress,
+  client: WalletApi,
+  proposalID: string,
+  vote_decision: string,
+  senderAddress: string,
 ) {
   const connectedToTestnet = await checkConnectedToTestnet(client)
   if (connectedToTestnet) {
@@ -222,11 +223,11 @@ export async function voteForProposal(
         address: { index: BigInt(CONTRACT_INDEX), subindex: BigInt(0) },
         receiveName: 'DAO.vote',
         maxContractExecutionEnergy: BigInt(30000),
-      },
+      } as unknown as UpdateContractPayload,
       {
         proposal_id: proposalID,
         votes: BigInt(vote_decision),
-      },
+      } as unknown as SmartContractParameters,
       RAW_SCHEMA_BASE64,
     )
     console.log({ txHash })
@@ -234,7 +235,7 @@ export async function voteForProposal(
   }
 }
 
-export async function withdrawFunds(client, proposalID, senderAddress) {
+export async function withdrawFunds(client: WalletApi, proposalID: string, senderAddress: string) {
   const connectedToTestnet = await checkConnectedToTestnet(client)
   if (connectedToTestnet) {
     const txHash = await client.sendTransaction(
@@ -245,10 +246,10 @@ export async function withdrawFunds(client, proposalID, senderAddress) {
         address: { index: BigInt(CONTRACT_INDEX), subindex: BigInt(0) },
         receiveName: 'DAO.withdraw',
         maxContractExecutionEnergy: BigInt(30000),
-      },
+      } as unknown as UpdateContractPayload,
       {
         proposal_id: proposalID,
-      },
+      } as unknown as SmartContractParameters,
       RAW_SCHEMA_BASE64,
     )
     console.log({ txHash })
@@ -256,7 +257,7 @@ export async function withdrawFunds(client, proposalID, senderAddress) {
   }
 }
 
-export async function getAllMembers(client) {
+export async function getAllMembers(client:WalletApi) {
   const res = await client.getGrpcClient().invokeContract({
     contract: { index: BigInt(CONTRACT_INDEX), subindex: BigInt(0) },
     method: 'DAO.all_members',
@@ -274,7 +275,7 @@ export async function getAllMembers(client) {
   return members
 }
 
-export async function getPower(client, account) {
+export async function getPower(client:WalletApi, account:string) {
   let param = serializeUpdateContractParameters(
     ContractName.fromString(CONTRACT_NAME),
     EntrypointName.fromString('get_power'),
@@ -305,7 +306,7 @@ export async function getPower(client, account) {
   // return power
 }
 
-export async function getAllProposals(client) {
+export async function getAllProposals(client:WalletApi) {
   const res = await client.getGrpcClient().invokeContract({
     contract: { index: BigInt(CONTRACT_INDEX), subindex: BigInt(0) },
     method: 'DAO.all_proposals',
