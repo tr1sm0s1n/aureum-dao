@@ -3,12 +3,12 @@ ARG rust_base_image=rust:1.80.0-slim
 
 # Build client
 FROM ${node_base_image} AS node_build
-WORKDIR /app
+WORKDIR /client
 
 RUN npm i -g pnpm
-COPY ./app/package.json .
+COPY ./client/package.json .
 RUN pnpm i
-COPY ./app/ .
+COPY ./client/ .
 
 RUN pnpm run build
 

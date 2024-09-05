@@ -1,9 +1,9 @@
 .DEFAULT_GOAL := help
 CONTRACT_DIR = cd contract/
 SERVER_DIR = cd server/
-APP_DIR = cd app/
+CLIENT_DIR = cd client/
 
-.PHONY: install concordium contract test app build run fmt help
+.PHONY: install concordium contract test client build run fmt help
 
 ###################
 ## INITIAL SETUP ##
@@ -11,7 +11,7 @@ APP_DIR = cd app/
 
 #? install: Install the necessary dependencies.
 install: concordium
-	@$(APP_DIR) && npm install
+	@$(CLIENT_DIR) && npm install
 
 #? concordium: Install Concordium SDK.
 concordium:
@@ -35,8 +35,8 @@ test: contract
 ######################################
 
 #? app: Build client application.
-app:
-	@$(APP_DIR) && npm run build
+client:
+	@$(CLIENT_DIR) && npm run build
 
 #? build: Build server.
 build:
@@ -63,7 +63,7 @@ down: build
 ############
 
 fmt-a:
-	@$(APP_DIR) && npm run fmt
+	@$(CLIENT_DIR) && npm run fmt
 
 fmt-c:
 	@$(CONTRACT_DIR) && cargo fmt
