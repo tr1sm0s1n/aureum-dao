@@ -22,10 +22,10 @@ const Proposals: React.FC<Props> = ({ proposals, power }) => {
     setShowModal(true)
   }
 
-  var settings = {
+  const settings = {
     dots: true,
     arrows: false,
-    infinite: true,
+    infinite: proposals.length > 3, // Disable infinite scrolling if there are fewer than 3 proposals
     speed: 500,
     slidesToScroll: 1,
     autoplay: true,
@@ -37,17 +37,18 @@ const Proposals: React.FC<Props> = ({ proposals, power }) => {
       {
         breakpoint: 10000,
         settings: {
-          slidesToShow: 3,
+          slidesToShow: Math.min(3, proposals.length), // Show only the number of proposals available
           slidesToScroll: 1,
-          infinite: true,
+          infinite: proposals.length > 3, // Match infinite to proposal length
         },
       },
       {
         breakpoint: 1024,
         settings: {
-          slidesToShow: 2,
+          slidesToShow: Math.min(2, proposals.length), // For medium screens
           slidesToScroll: 1,
           initialSlide: 2,
+          infinite: proposals.length > 2, // Adjust infinite accordingly
         },
       },
       {

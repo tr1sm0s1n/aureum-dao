@@ -150,11 +150,11 @@ const FormPage = () => {
                     </li>
                     <li className="mr-2" role="presentation">
                       <button
-                        className={`inline-block py-4 px-4 text-md font-medium text-center border-b-2 ${
+                        className={`inline-block py-4 px-4 text-xl font-bold text-center border-b-2 ${
                           activeTab === 'form2'
-                            ? 'text-gray-600 border-gray-300'
-                            : 'text-gray-500 border-transparent hover:text-gray-600 hover:border-gray-300'
-                        }`}
+                          ? 'text-brandDark border-primary'
+                          : 'text-gray-400 border-transparent hover:text-primary hover:border-secondary'
+                      }`}
                         onClick={() => setActiveTab('form2')}
                         role="tab"
                       >

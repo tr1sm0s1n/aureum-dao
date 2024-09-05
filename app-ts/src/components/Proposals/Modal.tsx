@@ -106,13 +106,8 @@ const Modal = ({ showModal, setShowModal, data, power }) => {
             variants={modalVariants}
             className="bg-white rounded-lg shadow-lg p-6 mx-4 md:mx-8 lg:mx-12 max-w-full sm:max-w-xl md:max-w-lg lg:max-w-4xl"
           >
-            <button
-              onClick={() => setShowModal(false)}
-              className="absolute -top-3 -right-3 bg-red-500 hover:bg-red-600 text-2xl w-10 h-10 rounded-full focus:outline-none text-white"
-            >
-              <MdClose className="m-auto" />
-            </button>
-            <div className="px-4 py-3 border-b flex items-center justify-between">
+            
+            {/* <div className="px-4 py-3 border-b flex items-center justify-between">
               <div className="flex items-center pr-3 text-lg font-bold">
                 <span
                   className={`${Object.keys(data[1].status)[0] === 'Active' ? 'text-green-500' : 'text-red-500'}`}
@@ -123,6 +118,16 @@ const Modal = ({ showModal, setShowModal, data, power }) => {
               <div className="flex items-center pl-3 text-lg font-bold text-indigo-400">
                 <h2 className="text-2xl font-semibold font-cursive">
                   {data.id}
+                </h2>
+              </div>
+            </div> */}
+            <div className="px-4 py-3 border-b flex items-center justify-between">
+              <div className="flex items-center pr-3 text-lg font-bold">
+                <span className="text-2xl font-bold"> {data[1].proposer.substring(0, 6)}</span>
+              </div>
+              <div className="flex items-center pl-3 text-lg font-bold text-indigo-400">
+                <h2 className="text-2xl font-semibold font-cursive">
+                {data[0].toString()}
                 </h2>
               </div>
             </div>
