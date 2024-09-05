@@ -214,7 +214,7 @@ fn dao_renounce(
     let voter = ctx.invoker();
     let mut renounce = 0;
 
-    if state.members.is_empty() || state.members.iter().any(|m| m.0 != voter) {
+    if state.members.is_empty() || !state.members.iter().any(|m| m.0 == voter) {
         return Err(DAOError::Unauthorized.into());
     }
 
