@@ -4,12 +4,12 @@ import FaceWithPeekingEyePng from '../../assets/face_with_peeking_eye.png'
 import { useNavigate } from 'react-router-dom'
 import { detectConcordiumProvider } from '@concordium/browser-wallet-api-helpers'
 import { authorize, getChallenge, getStatement } from '../../utils/verifier'
-import { UserContext } from '../../App'
+// import { UserContext } from '../../App'
 
-const Hero = ({ setUser, setClient }) => {
+const Hero = ({ user, setUser, setClient }) => {
   const [imageSrc, setImageSrc] = useState(ConfusedFacePng)
   const [verificationFailed, setVerificationFailed] = useState(false)
-  const { user } = useContext(UserContext)
+  // const { user } = useContext(UserContext)
   const [authToken, setAuthToken] = useState()
   const navigate = useNavigate()
 

@@ -37,7 +37,7 @@ const App = () => {
           <Routes>
             <Route
               path="/"
-              element={<Hero setUser={setUser} setClient={setClient} />}
+              element={<Hero user={user} setUser={setUser} setClient={setClient} />}
             />
             <Route path="/dashboard" element={<LandingPage />} />
           </Routes>
