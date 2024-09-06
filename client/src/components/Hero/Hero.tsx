@@ -26,10 +26,10 @@ const Hero: React.FC<Props> = ({ user, setUser, setClient }) => {
       detectConcordiumProvider()
         .then((provider) => {
           setClient(provider)
-          provider.requestAccounts()
+          return provider.requestAccounts()
         })
-        .then(() => {
-          setUser
+        .then((accounts) => {
+          setUser(accounts[0])
         }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
