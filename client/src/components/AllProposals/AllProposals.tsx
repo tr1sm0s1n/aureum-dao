@@ -163,8 +163,8 @@ const AllProposals: React.FC<Props> = ({ proposals }) => {
                           Object.keys(item[1].status)[0] === 'Active'
                             ? 'text-green-500'
                             : Object.keys(item[1].status)[0] === 'Approved'
-                            ? 'text-blue-500'
-                            : 'text-orange-500'
+                              ? 'text-blue-500'
+                              : 'text-orange-500'
                         } px-6 py-4`}
                       >
                         {Object.keys(item[1].status)[0]}

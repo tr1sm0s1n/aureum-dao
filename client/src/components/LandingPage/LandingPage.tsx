@@ -12,7 +12,7 @@ const LandingPage = () => {
   const ctx = useContext(UserContext)
   const [proposals, setProposals] = useState<ProposalArray>([])
   const [power, setPower] = useState<bigint>()
-  const [txHash, setTxHash] = useState<string | undefined>(undefined);
+  const [txHash, setTxHash] = useState<string | undefined>(undefined)
 
   useEffect(() => {
     getAllProposals(ctx.client!).then(setProposals).catch(console.error)
