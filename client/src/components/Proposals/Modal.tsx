@@ -67,25 +67,21 @@ const Modal: React.FC<Props> = ({
     } else {
       setVoteError('')
       console.log(voteNumber)
-      let res = await voteForProposal(
-        client!,
-        data[0].toString(),
-        voteNumber,
-        user!
-      )
+      let res = await voteForProposal(client!, data[0], voteNumber, user!)
       await getTransactionReceipt(client!, res!)
       setTxHash(res)
       console.log(res)
-      // Handle vote submission logic here
+      setShowModal(false)
     }
   }
 
   const handleRenounce = async (renounce: bigint) => {
     console.log(renounce)
-    let res = await renounceVotes(client!, data[0].toString(), renounce, user!)
+    let res = await renounceVotes(client!, data[0], renounce, user!)
     await getTransactionReceipt(client!, res!)
     setTxHash(res) // Set the transaction hash state here
     console.log(res)
+    setShowModal(false)
   }
 
   const handleInputChange = (e: any) => {
@@ -100,6 +96,7 @@ const Modal: React.FC<Props> = ({
     await getTransactionReceipt(client!, res!)
     setTxHash(res) // Set the transaction hash state here
     console.log(res)
+    setShowModal(false)
   }
 
   const [currentPage, setCurrentPage] = useState(1)

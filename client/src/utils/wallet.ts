@@ -76,7 +76,7 @@ export async function createProposal(
 }
 export async function renounceVotes(
   client: WalletApi,
-  proposalID: string,
+  proposalID: bigint,
   votes: bigint,
   senderAddress: string
 ) {
@@ -126,7 +126,7 @@ export async function insertFunds(
 
 export async function voteForProposal(
   client: WalletApi,
-  proposalID: string,
+  proposalID: bigint,
   vote_decision: number,
   senderAddress: string
 ) {
