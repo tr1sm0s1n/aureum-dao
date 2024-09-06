@@ -1,8 +1,9 @@
 export interface ProposalArray extends Array<[bigint, ProposalData]> {}
+export interface MemberArray extends Array<[string, bigint]> {}
 
 export interface ProposalData {
   amount: string
-  contributers: string[]
+  contributers: MemberArray
   description: string
   proposer: string
   status: ActiveStatus | ApprovedStatus | CollectedStatus

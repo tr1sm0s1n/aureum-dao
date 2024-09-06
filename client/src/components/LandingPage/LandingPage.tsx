@@ -5,7 +5,7 @@ import Proposals from '../Proposals/Proposals'
 import AllProposals from '../AllProposals/AllProposals'
 import { useContext, useEffect, useState } from 'react'
 import { UserContext } from '../../App'
-import { ProposalArray } from '../../types'
+import { MemberArray, ProposalArray } from '../../types'
 import { getAllMembers, getAllProposals } from '../../utils/wallet'
 
 const LandingPage = () => {
@@ -17,7 +17,7 @@ const LandingPage = () => {
   useEffect(() => {
     getAllProposals(ctx.client!).then(setProposals).catch(console.error)
     getAllMembers(ctx.client!)
-      .then((members: [string, bigint][]) => {
+      .then((members: MemberArray) => {
         let memberMap = new Map(members)
         setPower(memberMap.get(ctx.user!))
       })
