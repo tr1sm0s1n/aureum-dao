@@ -1,5 +1,5 @@
 import { VERIFIER_URL } from '../config/config'
-import { Challenge, ProofWithContext } from './types'
+import { Challenge, ProofWithContext } from '../types'
 
 const verifier = VERIFIER_URL
 /**

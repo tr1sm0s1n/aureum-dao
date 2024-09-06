@@ -9,6 +9,17 @@ export interface ProposalData {
   votes: bigint
 }
 
+export type { Challenge, ProofWithContext }
+
+interface Challenge {
+  challenge: Uint8Array
+}
+
+interface ProofWithContext {
+  credential: string
+  proof: any
+}
+
 interface ActiveStatus {
   Active: any[]
 }
