@@ -34,7 +34,7 @@ test: contract
 ## APPLICATION: BUILD & RUN LOCALLY ##
 ######################################
 
-#? app: Build client application.
+#? client: Build client application.
 client:
 	@$(CLIENT_DIR) && npm run build
 

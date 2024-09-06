@@ -30,7 +30,7 @@ ENV RUST_LOG=debug
 
 COPY --from=rust_build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=rust_build ./server/target/release/server .
-COPY --from=node_build ./dist ./dist
+COPY --from=node_build ./dist ../dist
 COPY ./server/config ./config
 
 CMD ["./server"]
