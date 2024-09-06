@@ -28,6 +28,8 @@ AUREUM leverages the power of blockchain technology to ensure that charitable fu
 - **Secure**: Built on the Concordium blockchain, which provides strong privacy features and regulatory compliance.
 - **Automated Processes**: Smart contract automate the collection and distribution of funds.
 
+> **Note:** Anyone can propose a charity in the application, but voting power is granted to those who deposit amount into the smart contract.
+
 ## Getting Started
 
 ### Docker Setup
@@ -91,6 +93,8 @@ make run
 
 This will launch the application on http://localhost:4800.
 
+> **Note:** Country of residence can be updated based on the need. Simply edit [`statement.json`](./server/config/statement.json).
+
 ## Usage
 
 ### Testing the Smart Contract
@@ -118,6 +122,8 @@ make test
 ### Deploying the Smart Contract
 
 Check out the [Developer Docs](https://developer.concordium.software/en/mainnet/smart-contracts/guides/quick-start.html) for instructions.
+
+Update the [`config.ts`](./client/src/config/config.ts) file with the latest `CONTRACT_INDEX`, `MODULE_REF` and `RAW_SCHEMA_BASE64` if necessary.
 
 ## Contributing
 
