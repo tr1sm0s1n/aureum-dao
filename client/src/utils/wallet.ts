@@ -36,9 +36,11 @@ async function checkConnectedToTestnet(client: WalletApi) {
     )
     .then((result) => {
       if (result === undefined) {
-        window.alert(
-          'Check if your Concordium browser wallet is connected to testnet!'
-        )
+        Swal.fire({
+          title: 'Cannot Proceed',
+          text: 'Check if your Concordium browser wallet is connected to testnet!',
+          icon: 'warning',
+        })
         return false
       }
       return true
@@ -216,7 +218,7 @@ export async function getTransactionReceipt(client: WalletApi, txHash: string) {
   const grpcClient = new ConcordiumGRPCClient(client.grpcTransport)
   try {
     Swal.fire({
-      title: 'Waiting for transaction receipt..',
+      text: 'Waiting for transaction receipt..',
       allowEscapeKey: false,
       allowOutsideClick: false,
       didOpen: () => {
@@ -231,10 +233,9 @@ export async function getTransactionReceipt(client: WalletApi, txHash: string) {
       report.summary.type === TransactionSummaryType.AccountTransaction &&
       report.summary.transactionType === TransactionKindString.Update
     ) {
-      const blockHash = report.blockHash
       Swal.fire({
         title: 'Transaction successful!',
-        text: `Transaction Hash: ${txHash}\n Blockhash: ${blockHash}`,
+        text: `Transaction Hash: ${txHash}\n Blockhash: ${report.blockHash}`,
         icon: 'success',
       })
     } else {
