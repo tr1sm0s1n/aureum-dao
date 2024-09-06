@@ -31,8 +31,8 @@ const AllProposals: React.FC<Props> = ({ proposals, power, setTxHash }) => {
   const [selectedData, setSelectedData] = useState<[bigint, ProposalData]>()
 
   const proposalsPerPage = 5
-  const indexOfLastTestimonial = currentPage * proposalsPerPage
-  const indexOfFirstTestimonial = indexOfLastTestimonial - proposalsPerPage
+  const indexOfLastProposal = currentPage * proposalsPerPage
+  const indexOfFirstProposal = indexOfLastProposal - proposalsPerPage
 
   // Filter proposals based on selected status and search query
   const filteredProposals = proposals.filter((item) => {
@@ -46,12 +46,10 @@ const AllProposals: React.FC<Props> = ({ proposals, power, setTxHash }) => {
   })
 
   const currentProposals = filteredProposals.slice(
-    indexOfFirstTestimonial,
-    indexOfLastTestimonial
+    indexOfFirstProposal,
+    indexOfLastProposal
   )
-  const totalPages = Math.ceil(
-    filteredProposals.length / proposalsPerPage
-  )
+  const totalPages = Math.ceil(filteredProposals.length / proposalsPerPage)
 
   const handleCardClick = (data: [bigint, ProposalData]) => {
     setSelectedData(data)
