@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import BgImg from '../../assets/website/white-bg.jpg'
-import { ProposalArray } from '../../types'
+import { ProposalArray, ProposalData } from '../../types'
+import Modal from '../Modal/Modal'
 
 // Background image style
 const bgImage: React.CSSProperties = {
@@ -15,21 +16,26 @@ const bgImage: React.CSSProperties = {
 
 interface Props {
   proposals: ProposalArray
+  power: bigint | undefined
+  setTxHash: React.Dispatch<React.SetStateAction<string | undefined>>
 }
 
-const AllProposals: React.FC<Props> = ({ proposals }) => {
+const AllProposals: React.FC<Props> = ({ proposals, power, setTxHash }) => {
   const [selectedStatus, setSelectedStatus] = useState<
     'Active' | 'Approved' | 'Collected' | 'All'
   >('All')
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [currentPage, setCurrentPage] = useState<number>(1)
 
-  const testimonialsPerPage = 5
-  const indexOfLastTestimonial = currentPage * testimonialsPerPage
-  const indexOfFirstTestimonial = indexOfLastTestimonial - testimonialsPerPage
+  const [showModal, setShowModal] = useState(false)
+  const [selectedData, setSelectedData] = useState<[bigint, ProposalData]>()
 
-  // Filter testimonials based on selected status and search query
-  const filteredTestimonials = proposals.filter((item) => {
+  const proposalsPerPage = 5
+  const indexOfLastTestimonial = currentPage * proposalsPerPage
+  const indexOfFirstTestimonial = indexOfLastTestimonial - proposalsPerPage
+
+  // Filter proposals based on selected status and search query
+  const filteredProposals = proposals.filter((item) => {
     const matchesStatus =
       selectedStatus === 'All' ||
       Object.keys(item[1].status)[0] === selectedStatus
@@ -39,13 +45,18 @@ const AllProposals: React.FC<Props> = ({ proposals }) => {
     return matchesStatus && matchesSearch
   })
 
-  const currentTestimonials = filteredTestimonials.slice(
+  const currentProposals = filteredProposals.slice(
     indexOfFirstTestimonial,
     indexOfLastTestimonial
   )
   const totalPages = Math.ceil(
-    filteredTestimonials.length / testimonialsPerPage
+    filteredProposals.length / proposalsPerPage
   )
+
+  const handleCardClick = (data: [bigint, ProposalData]) => {
+    setSelectedData(data)
+    setShowModal(true)
+  }
 
   const handleNextPage = () => {
     if (currentPage < totalPages) {
@@ -107,9 +118,9 @@ const AllProposals: React.FC<Props> = ({ proposals }) => {
                     >
                       <path
                         stroke="currentColor"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
                         d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
                       />
                     </svg>
@@ -145,10 +156,11 @@ const AllProposals: React.FC<Props> = ({ proposals }) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {currentTestimonials.map((item, index) => (
+                  {currentProposals.map((item, index) => (
                     <tr
                       key={index}
-                      className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                      onClick={() => handleCardClick(item)}
+                      className="bg-white border-b cursor-pointer dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
                     >
                       <th
                         scope="row"
@@ -195,6 +207,15 @@ const AllProposals: React.FC<Props> = ({ proposals }) => {
             </div>
           </div>
         </div>
+        {selectedData && (
+          <Modal
+            showModal={showModal}
+            setShowModal={setShowModal}
+            data={selectedData}
+            power={power}
+            setTxHash={setTxHash}
+          />
+        )}
       </div>
     </>
   )

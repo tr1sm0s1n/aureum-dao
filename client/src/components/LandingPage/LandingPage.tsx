@@ -29,8 +29,14 @@ const LandingPage = () => {
       <Navbar />
       <Home />
       <FormPage setTxHash={setTxHash} />
-      <Proposals proposals={proposals} power={power} setTxHash={setTxHash} />
-      <AllProposals proposals={proposals} />
+      <Proposals
+        proposals={proposals.filter((p) => {
+          return 'Active' in p[1].status && p[1].status.Active.length === 0
+        })}
+        power={power}
+        setTxHash={setTxHash}
+      />
+      <AllProposals proposals={proposals} power={power} setTxHash={setTxHash} />
     </>
   )
 }
