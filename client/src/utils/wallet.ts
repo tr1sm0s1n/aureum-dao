@@ -25,6 +25,7 @@ import {
   RAW_SCHEMA_BASE64,
   TESTNET_GENESIS_BLOCK_HASH,
 } from '../config/config'
+import Swal from 'sweetalert2'
 
 // Check if the user is connected to the testnet chain by checking if the testnet genesisBlock exists.
 async function checkConnectedToTestnet(client: WalletApi) {
@@ -74,7 +75,7 @@ export async function createProposal(
 export async function renounceVotes(
   client: WalletApi,
   proposalID: string,
-  votes: string,
+  votes: bigint,
   senderAddress: string
 ) {
   const connectedToTestnet = await checkConnectedToTestnet(client)
@@ -190,7 +191,6 @@ export async function getAllMembers(client: WalletApi) {
     SchemaVersion.V2
   )
 
-  console.log(members)
   return members
 }
 
@@ -210,4 +210,45 @@ export async function getAllProposals(client: WalletApi) {
   )
 
   return proposals
+}
+
+export async function getTransactionReceipt(client: WalletApi, txHash: string) {
+  const grpcClient = new ConcordiumGRPCClient(client.grpcTransport)
+  try {
+    Swal.fire({
+      title: 'Waiting for transaction receipt..',
+      allowEscapeKey: false,
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading()
+      },
+    })
+    const report = await grpcClient.waitForTransactionFinalization(
+      TransactionHash.fromHexString(txHash)
+    )
+    Swal.close()
+    if (
+      report.summary.type === TransactionSummaryType.AccountTransaction &&
+      report.summary.transactionType === TransactionKindString.Update
+    ) {
+      const blockHash = report.blockHash
+      Swal.fire({
+        title: 'Transaction successful!',
+        text: `Transaction Hash: ${txHash}\n Blockhash: ${blockHash}`,
+        icon: 'success',
+      })
+    } else {
+      Swal.fire({
+        title: 'Transaction failed!',
+        text: `Transaction Hash: ${txHash}`,
+        icon: 'error',
+      })
+    }
+  } catch (error) {
+    Swal.fire({
+      title: 'Error occured!',
+      text: String(error),
+      icon: 'error',
+    })
+  }
 }
