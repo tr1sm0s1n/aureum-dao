@@ -4,8 +4,11 @@ import { MdAttachMoney } from 'react-icons/md'
 import { ImParagraphCenter } from 'react-icons/im'
 import BgImg from '../../assets/website/bg.jpg'
 import { UserContext } from '../../App'
-import { createProposal, insertFunds } from '../../utils/wallet'
-import TransactionAlert from '../popup/popup.tsx'
+import {
+  createProposal,
+  getTransactionReceipt,
+  insertFunds,
+} from '../../utils/wallet'
 
 const bgImage = {
   backgroundImage: `url(${BgImg})`,
@@ -17,7 +20,11 @@ const bgImage = {
   width: '100%',
 }
 
-const FormPage = () => {
+interface Props {
+  setTxHash: React.Dispatch<React.SetStateAction<string | undefined>>
+}
+
+const FormPage: React.FC<Props> = ({ setTxHash }) => {
   const ctx = useContext(UserContext)
 
   const [activeTab, setActiveTab] = useState('form1')
@@ -67,8 +74,6 @@ const FormPage = () => {
     return Object.values(errors).every((error) => !error)
   }
 
-  const [txHash, setTxHash] = useState<string | undefined>(undefined);
-
   const handleForm1Submit = async (e: any) => {
     e.preventDefault()
     if (validateForm1()) {
@@ -77,18 +82,14 @@ const FormPage = () => {
         ctx.client!,
         form1Values.description,
         form1Values.amount,
-        ctx.user
+        ctx.user!
       )
-      setTxHash(res);  // Set the transaction hash state here
-      console.log(res);
+      await getTransactionReceipt(ctx.client!, res!)
+      setTxHash(res) // Set the transaction hash state here
+      console.log(res)
+      setForm1Values({ amount: 0, description: '' })
     }
   }
-
-  // useEffect(() => {
-  //   if (txHash) {
-  //     alert(`Transaction successful! Hash: ${txHash}`);
-  //   }
-  // }, [txHash]);
 
   const handleForm2Submit = async (e: any) => {
     e.preventDefault()
@@ -96,9 +97,11 @@ const FormPage = () => {
       // Handle form submission (e.g., send data to server)
       console.log('Form 2 submitted', form2Values)
 
-      let res = await insertFunds(ctx.client!, form2Values.amount, ctx.user)
-      setTxHash(res);  // Set the transaction hash state here
-      console.log(res);
+      let res = await insertFunds(ctx.client!, form2Values.amount, ctx.user!)
+      await getTransactionReceipt(ctx.client!, res!)
+      setTxHash(res) // Set the transaction hash state here
+      console.log(res)
+      setForm2Values({ amount: 0 })
     }
   }
 
@@ -152,9 +155,9 @@ const FormPage = () => {
                       <button
                         className={`inline-block py-4 px-4 text-xl font-bold text-center border-b-2 ${
                           activeTab === 'form2'
-                          ? 'text-brandDark border-primary'
-                          : 'text-gray-400 border-transparent hover:text-primary hover:border-secondary'
-                      }`}
+                            ? 'text-brandDark border-primary'
+                            : 'text-gray-400 border-transparent hover:text-primary hover:border-secondary'
+                        }`}
                         onClick={() => setActiveTab('form2')}
                         role="tab"
                       >
@@ -249,7 +252,6 @@ const FormPage = () => {
                         </div>
                       </div>
                     </form>
-                    <TransactionAlert txHash={txHash} client={ctx.client} />
                   </>
                 )}
                 {activeTab === 'form2' && (
@@ -309,7 +311,6 @@ const FormPage = () => {
                         </div>
                       </div>
                     </form>
-                    <TransactionAlert txHash={txHash} client={ctx.client} />
                   </>
                 )}
               </div>

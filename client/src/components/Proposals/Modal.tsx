@@ -1,16 +1,35 @@
 import { useContext, useState } from 'react'
 import { motion } from 'framer-motion'
-import { MdClose } from 'react-icons/md'
+// import { MdClose } from 'react-icons/md'
 import { UserContext } from '../../App'
-import { renounceVotes, voteForProposal, withdrawFunds } from '../../utils/wallet'
-import TransactionAlert from '../popup/popup'
+import {
+  getTransactionReceipt,
+  renounceVotes,
+  voteForProposal,
+  withdrawFunds,
+} from '../../utils/wallet'
+// import TransactionAlert from '../popup/popup'
+import { ProposalData } from '../../types'
 
+interface Props {
+  showModal: boolean
+  setShowModal: React.Dispatch<React.SetStateAction<boolean>>
+  data: [bigint, ProposalData]
+  power: bigint | undefined
+  setTxHash: React.Dispatch<React.SetStateAction<string | undefined>>
+}
 
-const Modal = ({ showModal, setShowModal, data, power }) => {
+const Modal: React.FC<Props> = ({
+  showModal,
+  setShowModal,
+  data,
+  power,
+  setTxHash,
+}) => {
   const { user, client } = useContext(UserContext)
   const [voteNumber, setVoteNumber] = useState(0)
   const [voteError, setVoteError] = useState('')
-  const [txHash, setTxHash] = useState<string | undefined>(undefined);
+  // const [txHash, setTxHash] = useState<string | undefined>(undefined);
 
   const modalVariants = {
     hidden: {
@@ -36,36 +55,40 @@ const Modal = ({ showModal, setShowModal, data, power }) => {
     },
   }
 
-  const handleOverlayClick = (e) => {
+  const handleOverlayClick = (e: any) => {
     if (e.target === e.currentTarget) {
       setShowModal(false)
     }
   }
 
-  
-
   const handleVote = async () => {
-    if (voteNumber > parseInt(power)) {
+    if (voteNumber > power!) {
       setVoteError('Please enter a valid number.')
     } else {
       setVoteError('')
       console.log(voteNumber)
-      let res = await voteForProposal(client!, data[0], voteNumber, user)
+      let res = await voteForProposal(
+        client!,
+        data[0].toString(),
+        voteNumber,
+        user!
+      )
+      await getTransactionReceipt(client!, res!)
       setTxHash(res)
       console.log(res)
-      alert('Vote submitted successfully!')
       // Handle vote submission logic here
     }
   }
 
-  const handleRenounce = async (renounce) => {
+  const handleRenounce = async (renounce: bigint) => {
     console.log(renounce)
-    let res = await renounceVotes(client!, data[0], renounce, user)
-    setTxHash(res);  // Set the transaction hash state here
-    console.log(res);
+    let res = await renounceVotes(client!, data[0].toString(), renounce, user!)
+    await getTransactionReceipt(client!, res!)
+    setTxHash(res) // Set the transaction hash state here
+    console.log(res)
   }
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: any) => {
     setVoteNumber(e.target.value)
     if (e.target.value) {
       setVoteError('')
@@ -73,9 +96,10 @@ const Modal = ({ showModal, setShowModal, data, power }) => {
   }
 
   const withdraw = async () => {
-    let res = await withdrawFunds(client!, data[0], user)
-    setTxHash(res);  // Set the transaction hash state here
-    console.log(res);
+    let res = await withdrawFunds(client!, data[0].toString(), user!)
+    await getTransactionReceipt(client!, res!)
+    setTxHash(res) // Set the transaction hash state here
+    console.log(res)
   }
 
   const [currentPage, setCurrentPage] = useState(1)
@@ -84,10 +108,10 @@ const Modal = ({ showModal, setShowModal, data, power }) => {
   const totalPages = Math.ceil(data[1].contributers.length / itemsPerPage)
   const paginatedData = data[1].contributers.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage,
+    currentPage * itemsPerPage
   )
 
-  const handlePageChange = (page) => {
+  const handlePageChange = (page: number) => {
     if (page < 1 || page > totalPages) return // Prevent going out of bounds
     setCurrentPage(page)
   }
@@ -106,28 +130,16 @@ const Modal = ({ showModal, setShowModal, data, power }) => {
             variants={modalVariants}
             className="bg-white rounded-lg shadow-lg p-6 mx-4 md:mx-8 lg:mx-12 max-w-full sm:max-w-xl md:max-w-lg lg:max-w-4xl"
           >
-            
-            {/* <div className="px-4 py-3 border-b flex items-center justify-between">
+            <div className="px-4 py-3 border-b flex items-center justify-between">
               <div className="flex items-center pr-3 text-lg font-bold">
-                <span
-                  className={`${Object.keys(data[1].status)[0] === 'Active' ? 'text-green-500' : 'text-red-500'}`}
-                >
+                <span className="text-2xl font-bold">
+                  {' '}
                   {data[1].proposer.substring(0, 6)}
                 </span>
               </div>
               <div className="flex items-center pl-3 text-lg font-bold text-indigo-400">
                 <h2 className="text-2xl font-semibold font-cursive">
-                  {data.id}
-                </h2>
-              </div>
-            </div> */}
-            <div className="px-4 py-3 border-b flex items-center justify-between">
-              <div className="flex items-center pr-3 text-lg font-bold">
-                <span className="text-2xl font-bold"> {data[1].proposer.substring(0, 6)}</span>
-              </div>
-              <div className="flex items-center pl-3 text-lg font-bold text-indigo-400">
-                <h2 className="text-2xl font-semibold font-cursive">
-                {data[0].toString()}
+                  {data[0].toString()}
                 </h2>
               </div>
             </div>
@@ -135,7 +147,11 @@ const Modal = ({ showModal, setShowModal, data, power }) => {
             <div className="px-4 py-3 border-b flex items-center justify-between divide-x-2 divide-gray-400">
               <div className="flex items-center pr-3 text-lg font-bold">
                 <span
-                  className={`${Object.keys(data[1].status)[0] === 'Active' ? 'text-green-500' : 'text-red-500'}`}
+                  className={`${
+                    Object.keys(data[1].status)[0] === 'Active'
+                      ? 'text-green-500'
+                      : 'text-red-500'
+                  }`}
                 >
                   {Object.keys(data[1].status)[0]}
                 </span>
@@ -152,7 +168,6 @@ const Modal = ({ showModal, setShowModal, data, power }) => {
                     className="ml-auto bg-primary border-primary hover:scale-105 duration-200 text-white px-4 py-2 rounded-full"
                   >
                     Withdraw
-                    <TransactionAlert txHash={txHash} client={client} />
                   </button>
                 )}
             </div>
@@ -169,7 +184,7 @@ const Modal = ({ showModal, setShowModal, data, power }) => {
                     <input
                       type="number"
                       value={voteNumber}
-                      max={parseInt(power)}
+                      max={power!.toString()}
                       onChange={handleInputChange}
                       className="mt-1 block w-48 p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     />
@@ -183,7 +198,7 @@ const Modal = ({ showModal, setShowModal, data, power }) => {
                     </label>
                     <input
                       type="number"
-                      value={parseInt(power)}
+                      value={power!.toString()}
                       disabled
                       className="mt-1 block w-48 p-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 sm:text-sm"
                     />
@@ -195,7 +210,6 @@ const Modal = ({ showModal, setShowModal, data, power }) => {
                     >
                       Vote
                     </button>
-                    <TransactionAlert txHash={txHash} client={client} />
                   </div>
                 </div>
               </div>
@@ -233,12 +247,11 @@ const Modal = ({ showModal, setShowModal, data, power }) => {
                         Object.keys(data[1].status)[0] === 'Active' && (
                           <td className="px-6 py-4">
                             <button
-                              onClick={() => handleRenounce(item[1])}
+                              onClick={() => handleRenounce(data[1].votes)}
                               className="bg-primary border-2 border-primary hover:scale-105 duration-200 text-white py-2 px-4 rounded-full"
                             >
                               Renounce
                             </button>
-                            <TransactionAlert txHash={txHash} client={client} />
                           </td>
                         )}
                     </tr>

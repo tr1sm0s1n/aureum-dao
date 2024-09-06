@@ -8,9 +8,10 @@ import { ProposalArray, ProposalData } from '../../types'
 interface Props {
   proposals: ProposalArray
   power: bigint | undefined
+  setTxHash: React.Dispatch<React.SetStateAction<string | undefined>>
 }
 
-const Proposals: React.FC<Props> = ({ proposals, power }) => {
+const Proposals: React.FC<Props> = ({ proposals, power, setTxHash }) => {
   const [showModal, setShowModal] = useState(false)
   const [selectedData, setSelectedData] = useState<[bigint, ProposalData]>()
 
@@ -135,6 +136,7 @@ const Proposals: React.FC<Props> = ({ proposals, power }) => {
             setShowModal={setShowModal}
             data={selectedData}
             power={power}
+            setTxHash={setTxHash}
           />
         )}
       </div>

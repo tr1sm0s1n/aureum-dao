@@ -12,6 +12,7 @@ const LandingPage = () => {
   const ctx = useContext(UserContext)
   const [proposals, setProposals] = useState<ProposalArray>([])
   const [power, setPower] = useState<bigint>()
+  const [txHash, setTxHash] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     getAllProposals(ctx.client!).then(setProposals).catch(console.error)
@@ -21,14 +22,14 @@ const LandingPage = () => {
         setPower(memberMap.get(ctx.user!))
       })
       .catch(console.error)
-  }, [proposals, power])
+  }, [txHash])
 
   return (
     <>
       <Navbar />
       <Home />
-      <FormPage />
-      <Proposals proposals={proposals} power={power} />
+      <FormPage setTxHash={setTxHash} />
+      <Proposals proposals={proposals} power={power} setTxHash={setTxHash} />
       <AllProposals proposals={proposals} />
     </>
   )
