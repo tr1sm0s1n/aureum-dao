@@ -1,6 +1,5 @@
 import { useContext, useState } from 'react'
 import { motion } from 'framer-motion'
-// import { MdClose } from 'react-icons/md'
 import { UserContext } from '../../App'
 import {
   getTransactionReceipt,
@@ -8,7 +7,6 @@ import {
   voteForProposal,
   withdrawFunds,
 } from '../../utils/wallet'
-// import TransactionAlert from '../popup/popup'
 import { ProposalData } from '../../types'
 
 interface Props {
@@ -29,7 +27,6 @@ const Modal: React.FC<Props> = ({
   const { user, client } = useContext(UserContext)
   const [voteNumber, setVoteNumber] = useState(0)
   const [voteError, setVoteError] = useState('')
-  // const [txHash, setTxHash] = useState<string | undefined>(undefined);
 
   const modalVariants = {
     hidden: {
@@ -71,6 +68,7 @@ const Modal: React.FC<Props> = ({
       await getTransactionReceipt(client!, res!)
       setTxHash(res)
       console.log(res)
+      setVoteNumber(0)
       setShowModal(false)
     }
   }
@@ -79,8 +77,9 @@ const Modal: React.FC<Props> = ({
     console.log(renounce)
     let res = await renounceVotes(client!, data[0], renounce, user!)
     await getTransactionReceipt(client!, res!)
-    setTxHash(res) // Set the transaction hash state here
+    setTxHash(res)
     console.log(res)
+    setVoteNumber(0)
     setShowModal(false)
   }
 
@@ -94,8 +93,9 @@ const Modal: React.FC<Props> = ({
   const withdraw = async () => {
     let res = await withdrawFunds(client!, data[0].toString(), user!)
     await getTransactionReceipt(client!, res!)
-    setTxHash(res) // Set the transaction hash state here
+    setTxHash(res)
     console.log(res)
+    setVoteNumber(0)
     setShowModal(false)
   }
 
