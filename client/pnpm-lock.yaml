@@ -41,9 +41,9 @@ importers:
       slick-carousel:
         specifier: ^1.8.1
         version: 1.8.1(jquery@3.7.1)
-      sweetalert:
-        specifier: ^2.1.2
-        version: 2.1.2
+      sweetalert2:
+        specifier: ^11.13.2
+        version: 11.13.2
     devDependencies:
       '@eslint/js':
         specifier: ^9.8.0
@@ -868,9 +868,6 @@ packages:
   enquire.js@2.1.6:
     resolution: {integrity: sha512-/KujNpO+PT63F7Hlpu4h3pE3TokKRHN26JYmQpPyjkRD/N57R7bPDNojMXdi7uveAKjYB7yQnartCxZnFWr0Xw==}
 
-  es6-object-assign@1.1.0:
-    resolution: {integrity: sha512-MEl9uirslVwqQU369iHNWZXsI8yaZYGg/D65aOgZkeyFJwHYSxilf7rQzXKI7DdDuBPrBXbfk3sl9hJhmd5AUw==}
-
   esbuild@0.21.5:
     resolution: {integrity: sha512-mg3OPMV4hXywwpoDxu3Qda5xCKQi+vCTZq8S9J/EpkhB2HzKXq4SNFZE3+NK93JYxc8VMSep+lOUSC/RVKaBqw==}
     engines: {node: '>=12'}
@@ -1348,9 +1345,6 @@ packages:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
 
-  promise-polyfill@6.1.0:
-    resolution: {integrity: sha512-g0LWaH0gFsxovsU7R5LrrhHhWAWiHRnh1GPrhXnPgYsDkIqjRYUYSZEsej/wtleDrz5xVSIDbeKfidztp2XHFQ==}
-
   protobufjs@7.4.0:
     resolution: {integrity: sha512-mRUWCc3KUU4w1jU8sGxICXH/gNS94DvI1gxqDvBzhj1JpcsimQkYiOJfwsPUykUI5ZaspFbSgmBLER8IrQ3tqw==}
     engines: {node: '>=12.0.0'}
@@ -1506,8 +1500,8 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
 
-  sweetalert@2.1.2:
-    resolution: {integrity: sha512-iWx7X4anRBNDa/a+AdTmvAzQtkN1+s4j/JJRWlHpYE8Qimkohs8/XnFcWeYHH2lMA8LRCa5tj2d244If3S/hzA==}
+  sweetalert2@11.13.2:
+    resolution: {integrity: sha512-Q361QVJrDce3pA+46m2JmfDQyxxlmVE6t7ScoMwubm2PQKTlUqaMpzWq/DZRSPL8Sg2hUCzUAXQ9dwMPnbsy7Q==}
 
   tailwindcss@3.4.10:
     resolution: {integrity: sha512-KWZkVPm7yJRhdu4SRSl9d4AK2wM3a50UsvgHZO7xY77NQr2V+fIrEuoDGQcbvswWvFGbS2f6e+jC/6WJm1Dl0w==}
@@ -2399,8 +2393,6 @@ snapshots:
 
   enquire.js@2.1.6: {}
 
-  es6-object-assign@1.1.0: {}
-
   esbuild@0.21.5:
     optionalDependencies:
       '@esbuild/aix-ppc64': 0.21.5
@@ -2842,8 +2834,6 @@ snapshots:
 
   prelude-ls@1.2.1: {}
 
-  promise-polyfill@6.1.0: {}
-
   protobufjs@7.4.0:
     dependencies:
       '@protobufjs/aspromise': 1.1.2
@@ -3015,10 +3005,7 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
-  sweetalert@2.1.2:
-    dependencies:
-      es6-object-assign: 1.1.0
-      promise-polyfill: 6.1.0
+  sweetalert2@11.13.2: {}
 
   tailwindcss@3.4.10:
     dependencies:

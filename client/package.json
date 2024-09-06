@@ -21,7 +21,7 @@
     "react-router-dom": "^6.26.0",
     "react-slick": "^0.29.0",
     "slick-carousel": "^1.8.1",
-    "sweetalert": "^2.1.2"
+    "sweetalert2": "^11.13.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.8.0",

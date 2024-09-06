@@ -7,6 +7,7 @@ import {
   WalletApi,
 } from '@concordium/browser-wallet-api-helpers'
 import { authorize, getChallenge, getStatement } from '../../utils/verifier'
+import Swal from 'sweetalert2'
 
 interface Props {
   user: string | undefined
@@ -111,7 +112,13 @@ const Hero: React.FC<Props> = ({ user, setUser, setClient }) => {
                       onMouseLeave={() => setImageSrc(ConfusedFacePng)}
                       type="button"
                       onClick={() =>
-                        handleAuthorize().catch((e) => alert(e.message))
+                        handleAuthorize().catch(() =>
+                          Swal.fire({
+                            icon: 'error',
+                            title: 'Unable to validate',
+                            text: 'Please try again.',
+                          })
+                        )
                       }
                     >
                       Verify
