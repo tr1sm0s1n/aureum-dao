@@ -55,7 +55,7 @@ up:
 	@docker compose up --build
 
 #? down: Stop Docker container.
-down: build
+down:
 	@docker compose down
 
 ############
