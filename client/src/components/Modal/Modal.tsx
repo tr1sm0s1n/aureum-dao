@@ -91,7 +91,7 @@ const Modal: React.FC<Props> = ({
   }
 
   const withdraw = async () => {
-    let res = await withdrawFunds(client!, data[0].toString(), user!)
+    let res = await withdrawFunds(client!, data[0], user!)
     await getTransactionReceipt(client!, res!)
     setTxHash(res)
     console.log(res)

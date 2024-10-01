@@ -154,7 +154,7 @@ export async function voteForProposal(
 
 export async function withdrawFunds(
   client: WalletApi,
-  proposalID: string,
+  proposalID: bigint,
   senderAddress: string
 ) {
   const connectedToTestnet = await checkConnectedToTestnet(client)
